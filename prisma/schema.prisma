@@ -1,0 +1,82 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  ADMIN
+  CLIENT
+}
+
+model User {
+  id           String        @id @default(cuid())
+  name         String
+  username     String?       @unique
+  email        String?       @unique
+  phone        String?       @unique
+  passwordHash String
+  mustChangePassword Boolean @default(false)
+  passwordResetTokenHash String?
+  passwordResetExpiresAt DateTime?
+  role         UserRole      @default(CLIENT)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  clientEvents Event[]       @relation("ClientEvents")
+}
+
+enum ShareLinkScope {
+  EVENT
+  FOLDER
+}
+
+enum ShareExpirationPreset {
+  NEVER
+  DAYS_7
+  DAYS_30
+  DAYS_90
+}
+
+model Event {
+  id          String          @id @default(cuid())
+  title       String
+  infoText    String?
+  coverUrl    String?
+  clientId    String
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  client      User            @relation("ClientEvents", fields: [clientId], references: [id], onDelete: Cascade)
+  folders     GalleryFolder[]
+  shareLinks  ShareLink[]
+}
+
+model GalleryFolder {
+  id          String      @id @default(cuid())
+  title       String
+  driveUrl    String
+  eventId     String
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  event       Event       @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  shareLinks  ShareLink[]
+}
+
+model ShareLink {
+  id               String               @id @default(cuid())
+  slug             String               @unique
+  scope            ShareLinkScope
+  eventId          String
+  folderId         String?
+  expirationPreset ShareExpirationPreset
+  expiresAt        DateTime?
+  passwordHash     String?
+  createdAt        DateTime             @default(now())
+  updatedAt        DateTime             @updatedAt
+  event            Event                @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  folder           GalleryFolder?       @relation(fields: [folderId], references: [id], onDelete: Cascade)
+
+  @@index([eventId])
+}

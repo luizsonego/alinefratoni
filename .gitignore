@@ -1,0 +1,12 @@
+# dependências
+node_modules
+.next
+
+# env
+.env
+.env.local
+.env.*.local
+
+# uploads (mantém a pasta com .gitkeep)
+public/uploads/events/*
+!public/uploads/events/.gitkeep
