@@ -1,18 +1,10 @@
 import { NextResponse } from 'next/server'
 import { revalidatePath } from 'next/cache'
-import { prisma } from '@/lib/prisma'
-import { removeLocalCoverIfExists } from '@/lib/save-event-cover'
-import { deleteAllObjectsUnderPrefix, isR2Configured, parseR2FolderRef } from '@/lib/r2'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 
-type RouteCtx = { params: { clientId: string } | Promise<{ clientId: string }> }
-
-async function getClientIdFromParams(params: RouteCtx['params']) {
-  const resolved = await params
-  return resolved?.clientId?.trim() || ''
-}
+type RouteCtx = { params: { clientId: string } }
 
 async function ensureAdminApi() {
   const { readSession } = await import('@/lib/auth')
@@ -27,7 +19,7 @@ export async function PATCH(request: Request, { params }: RouteCtx) {
   const unauthorized = await ensureAdminApi()
   if (unauthorized) return unauthorized
 
-  const clientId = await getClientIdFromParams(params)
+  const clientId = params?.clientId?.trim() || ''
   if (!clientId) {
     return NextResponse.json({ error: 'ID inválido.' }, { status: 400 })
   }
@@ -66,10 +58,14 @@ export async function DELETE(_request: Request, { params }: RouteCtx) {
   const unauthorized = await ensureAdminApi()
   if (unauthorized) return unauthorized
 
-  const clientId = await getClientIdFromParams(params)
+  const clientId = params?.clientId?.trim() || ''
   if (!clientId) {
     return NextResponse.json({ error: 'ID inválido.' }, { status: 400 })
   }
+
+  const { prisma } = await import('@/lib/prisma')
+  const { removeLocalCoverIfExists } = await import('@/lib/save-event-cover')
+  const { deleteAllObjectsUnderPrefix, isR2Configured, parseR2FolderRef } = await import('@/lib/r2')
 
   const existing = await prisma.user.findFirst({
     where: { id: clientId, role: 'CLIENT' },
