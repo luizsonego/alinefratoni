@@ -57,12 +57,21 @@ export async function POST(request: Request) {
   }
 
   const arrayBuffer = await file.arrayBuffer()
-  const uploaded = await uploadFileToR2Prefix({
-    prefix,
-    filename: file.name,
-    contentType: file.type || 'application/octet-stream',
-    body: new Uint8Array(arrayBuffer),
-  })
+  let uploaded: Awaited<ReturnType<typeof uploadFileToR2Prefix>>
+  try {
+    uploaded = await uploadFileToR2Prefix({
+      prefix,
+      filename: file.name,
+      contentType: file.type || 'application/octet-stream',
+      body: new Uint8Array(arrayBuffer),
+    })
+  } catch (e) {
+    const details = e instanceof Error ? e.message : String(e)
+    return NextResponse.json(
+      { error: 'Falha ao enviar arquivo para o Cloudflare R2.', details },
+      { status: 500 }
+    )
+  }
 
   return NextResponse.json({
     ok: true,

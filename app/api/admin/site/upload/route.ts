@@ -35,12 +35,21 @@ export async function POST(request: Request) {
   }
 
   const body = new Uint8Array(await file.arrayBuffer())
-  const uploaded = await uploadFileToR2Prefix({
-    prefix: getSiteAssetsR2Prefix(),
-    filename: file.name,
-    contentType: file.type || 'image/jpeg',
-    body,
-  })
+  let uploaded: Awaited<ReturnType<typeof uploadFileToR2Prefix>>
+  try {
+    uploaded = await uploadFileToR2Prefix({
+      prefix: getSiteAssetsR2Prefix(),
+      filename: file.name,
+      contentType: file.type || 'image/jpeg',
+      body,
+    })
+  } catch (e) {
+    const details = e instanceof Error ? e.message : String(e)
+    return NextResponse.json(
+      { error: 'Falha ao enviar imagem para o Cloudflare R2.', details },
+      { status: 500 }
+    )
+  }
 
   const publicUrl = uploaded.publicUrl?.trim() || null
   const imageRef = buildPortfolioImageRefFromObjectKey(uploaded.objectKey)

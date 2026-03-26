@@ -34,12 +34,20 @@ const TABS: { id: TabId; label: string }[] = [
 ]
 
 async function putToPresignedUrl(signedUrl: string, file: File, contentType: string) {
-  const res = await fetch(signedUrl, {
-    method: 'PUT',
-    body: file,
-    headers: { 'Content-Type': contentType },
-  })
-  if (!res.ok) throw new Error(`Upload falhou (${res.status}).`)
+  let res: Response
+  try {
+    res = await fetch(signedUrl, {
+      method: 'PUT',
+      body: file,
+      headers: { 'Content-Type': contentType },
+    })
+  } catch (e) {
+    const details = e instanceof Error ? e.message : String(e)
+    throw new Error(`Falha no PUT para o R2 (provável CORS/preflight). Detalhes: ${details}`)
+  }
+  if (!res.ok) {
+    throw new Error(`Upload falhou no PUT para o R2 (${res.status}).`)
+  }
 }
 
 /** Fotos do site pelo servidor — evita bloqueio de CORS no PUT direto para o R2. */
