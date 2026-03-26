@@ -1,4 +1,5 @@
 import {
+  Globe,
   ImageIcon,
   LayoutDashboard,
   Share2,
@@ -18,6 +19,7 @@ export type NavItem = {
 
 export const mainNav: NavItem[] = [
   { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
+  { href: '/admin/site', label: 'Site público', icon: Globe },
   { href: '/admin/projetos', label: 'Projetos', icon: FolderKanban },
   { href: '/admin/upload', label: 'Upload', icon: Upload },
   { href: '/admin/clientes', label: 'Clientes', icon: Users },

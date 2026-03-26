@@ -1,86 +1,181 @@
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
+  :root {
+    --font-heading: 'Cormorant Garamond', serif;
+    --font-body: 'Montserrat', system-ui, sans-serif;
+    --color-bg: #f9f9f9;
+    --color-text-primary: #1a1a1a;
+    --color-accent: #c4a77d;
+  }
+
   html {
     scroll-behavior: smooth;
   }
-  
+
   body {
-    font-family: 'Inter', sans-serif;
+    font-family: var(--font-body), system-ui, sans-serif;
+    background-color: var(--color-bg);
+    color: var(--color-text-primary);
   }
-  
-  h1, h2, h3, h4, h5, h6 {
-    font-family: 'Playfair Display', serif;
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-heading), serif;
   }
 }
 
 @layer components {
-  .btn-primary {
-    @apply bg-warm-600 hover:bg-warm-700 text-white px-6 py-3 rounded-lg font-medium transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105;
+  .nav-link {
+    position: relative;
+    display: inline-block;
+    font-size: 0.875rem;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    color: var(--color-text-primary);
+    transition: color 0.2s ease;
   }
-  
-  .btn-secondary {
-    @apply border-2 border-warm-600 text-warm-600 hover:bg-warm-600 hover:text-white px-6 py-3 rounded-lg font-medium transition-all duration-300 hover:scale-105;
+
+  .nav-link:hover {
+    color: var(--color-accent);
   }
-  
+
+  .nav-link::after {
+    content: '';
+    display: block;
+    width: 0;
+    height: 1px;
+    background: var(--color-text-primary);
+    transition: width 0.3s ease;
+    margin-top: 2px;
+  }
+
+  .nav-link:hover::after {
+    width: 100%;
+  }
+
+  .nav-link-active::after {
+    width: 100%;
+  }
+
+  .btn-outline-dark {
+    @apply inline-flex items-center justify-center rounded-full border border-[#1a1a1a] bg-transparent px-6 py-2.5 text-sm font-medium text-[#1a1a1a] transition-colors duration-300;
+  }
+
+  .btn-outline-dark:hover {
+    background-color: var(--color-text-primary);
+    color: var(--color-bg);
+  }
+
+  .btn-outline-light {
+    @apply inline-flex items-center justify-center rounded-full border border-[#f9f9f9]/80 bg-transparent px-8 py-3 text-sm font-medium text-[#f9f9f9] transition-colors duration-300;
+  }
+
+  .btn-outline-light:hover {
+    background-color: #f9f9f9;
+    color: #1a1a1a;
+  }
+
   .section-padding {
-    @apply py-16 px-4 sm:px-6 lg:px-8;
+    @apply py-20 px-4 sm:px-6 lg:px-12;
   }
-  
+
   .container-custom {
-    @apply max-w-7xl mx-auto;
+    @apply mx-auto max-w-7xl;
   }
-  
-  /* Smooth scroll behavior */
-  html {
-    scroll-behavior: smooth;
+
+  .masonry-grid {
+    column-count: 1;
+    column-gap: 1rem;
   }
-  
-  /* Custom scrollbar */
-  ::-webkit-scrollbar {
-    width: 8px;
+
+  @media (min-width: 640px) {
+    .masonry-grid {
+      column-count: 2;
+    }
   }
-  
-  ::-webkit-scrollbar-track {
-    background: #f1f1f1;
+
+  @media (min-width: 768px) {
+    .masonry-grid {
+      column-count: 3;
+    }
   }
-  
-  ::-webkit-scrollbar-thumb {
-    background: #dd6b20;
-    border-radius: 4px;
+
+  @media (min-width: 1024px) {
+    .masonry-grid {
+      column-count: 4;
+    }
   }
-  
-  ::-webkit-scrollbar-thumb:hover {
-    background: #c05621;
+
+  @media (min-width: 1280px) {
+    .masonry-grid {
+      column-count: 5;
+    }
+  }
+
+  .masonry-item {
+    break-inside: avoid;
+    margin-bottom: 1rem;
+  }
+
+  .marquee-track {
+    display: flex;
+    width: max-content;
+    gap: 1.5rem;
+    animation: marquee-scroll 45s linear infinite;
+  }
+
+  .marquee-track:hover {
+    animation-play-state: paused;
+  }
+
+  @keyframes marquee-scroll {
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(-50%);
+    }
   }
 
   .admin-app ::-webkit-scrollbar {
     width: 8px;
     height: 8px;
   }
+
   .admin-app ::-webkit-scrollbar-track {
     background: #09090b;
   }
+
   .admin-app ::-webkit-scrollbar-thumb {
     background: #3f3f46;
     border-radius: 4px;
   }
+
   .admin-app ::-webkit-scrollbar-thumb:hover {
     background: #52525b;
   }
-  
-  /* Shimmer effect */
-  .shimmer {
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-    background-size: 200% 100%;
-    animation: shimmer 2s infinite;
+
+  ::-webkit-scrollbar {
+    width: 8px;
   }
-  
-  @keyframes shimmer {
-    0% { background-position: -200% 0; }
-    100% { background-position: 200% 0; }
+
+  ::-webkit-scrollbar-track {
+    background: #f1f1f1;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #c4a77d;
+    border-radius: 4px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #a88b66;
   }
 }

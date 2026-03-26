@@ -8,6 +8,11 @@ module.exports = {
   theme: {
     extend: {
       colors: {
+        brand: {
+          bg: '#F9F9F9',
+          ink: '#1A1A1A',
+          accent: '#C4A77D',
+        },
         terracotta: {
           50: '#fdf2f8',
           100: '#fce7f3',
@@ -34,8 +39,8 @@ module.exports = {
         }
       },
       fontFamily: {
-        'serif': ['Playfair Display', 'serif'],
-        'sans': ['Inter', 'sans-serif'],
+        serif: ['var(--font-heading)', 'Cormorant Garamond', 'serif'],
+        sans: ['var(--font-body)', 'Montserrat', 'system-ui', 'sans-serif'],
       },
     },
   },

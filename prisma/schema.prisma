@@ -80,3 +80,71 @@ model ShareLink {
 
   @@index([eventId])
 }
+
+// Conteúdo editável da página inicial (singleton id = default).
+model SitePublicContent {
+  id     String @id @default("default")
+  heroTitle         String
+  heroSubtitle      String
+  // URL pública (CDN R2, ImageKit, etc.)
+  heroPosterUrl     String
+  heroVideoUrl      String
+  portfolioTitle    String
+  portfolioSubtitle String
+
+  portfolioPageHeroTitle    String @default("")
+  portfolioPageHeroSubtitle String @default("")
+  portfolioPageHeroBgUrl    String @default("")
+  portfolioPageHeroChipsJson Json?
+
+  testimonialsTitle    String @default("")
+  testimonialsSubtitle String @default("")
+  testimonialsJson     Json?
+
+  contactHeading        String @default("")
+  contactBgImageUrl     String @default("")
+  contactShootTypesJson Json?
+
+  aboutTitle           String @default("")
+  aboutImageUrl        String @default("")
+  aboutParagraphsJson  Json?
+
+  socialInstagram String @default("")
+  socialFacebook  String @default("")
+  socialYoutube   String @default("")
+
+  footerTagline     String @default("")
+  footerAddressLine String @default("")
+
+  updatedAt DateTime @updatedAt
+}
+
+model PortfolioCategory {
+  id          String                @id @default(cuid())
+  title       String
+  slug        String                @unique
+  description String?
+  sortOrder   Int                   @default(0)
+  items       PortfolioShowcaseItem[]
+
+  @@index([sortOrder])
+}
+
+// Fotos do portfólio: todas na página /portfolio; subset com showOnHome na masonry da home.
+model PortfolioShowcaseItem {
+  id               String             @id @default(cuid())
+  showOnHome       Boolean            @default(false)
+  homeSortOrder    Int                @default(0)
+  gallerySortOrder Int                @default(0)
+  imageUrl         String
+  altText          String
+  caption          String?
+  description      String?
+  categoryId       String?
+  category         PortfolioCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+
+  @@index([gallerySortOrder])
+  @@index([showOnHome, homeSortOrder])
+}

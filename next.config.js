@@ -1,8 +1,20 @@
 /** @type {import('next').NextConfig} */
+function r2RemoteImagePatterns() {
+  const base = process.env.R2_PUBLIC_BASE_URL
+  if (!base || typeof base !== 'string') return []
+  try {
+    const u = new URL(base.trim())
+    const protocol = u.protocol === 'https:' ? 'https' : u.protocol === 'http:' ? 'http' : 'https'
+    return [{ protocol, hostname: u.hostname }]
+  } catch {
+    return []
+  }
+}
+
 const nextConfig = {
   experimental: {
     serverActions: {
-      bodySizeLimit: '6mb',
+      bodySizeLimit: '25mb',
     },
   },
   images: {
@@ -14,6 +26,10 @@ const nextConfig = {
       { protocol: 'https', hostname: 'drive.google.com' },
       { protocol: 'https', hostname: 'picsum.photos' },
       { protocol: 'https', hostname: 'placehold.co' },
+      { protocol: 'https', hostname: 'ik.imagekit.io' },
+      // R2 Public Development URL (pub-*.r2.dev) — fallback se R2_PUBLIC_BASE_URL não estiver no build
+      { protocol: 'https', hostname: '**.r2.dev' },
+      ...r2RemoteImagePatterns(),
     ],
   },
 }

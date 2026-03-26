@@ -1,13 +1,25 @@
 import type { Metadata } from 'next'
-import { Inter, Playfair_Display } from 'next/font/google'
+import { Montserrat, Cormorant_Garamond } from 'next/font/google'
 import './globals.css'
 
-const inter = Inter({ subsets: ['latin'], variable: '--font-inter' })
-const playfair = Playfair_Display({ subsets: ['latin'], variable: '--font-playfair' })
+const montserrat = Montserrat({
+  subsets: ['latin'],
+  variable: '--font-body',
+  weight: ['300', '400', '500', '600'],
+  display: 'swap',
+})
+
+const cormorant = Cormorant_Garamond({
+  subsets: ['latin'],
+  variable: '--font-heading',
+  weight: ['400', '500', '600', '700'],
+  display: 'swap',
+})
 
 export const metadata: Metadata = {
-  title: 'Aline Fratoni Fotografia - Fotografia que revela a sua essência',
-  description: 'Ensaios em estúdio que contam a sua história. Especializada em ensaios femininos, acompanhamentos e datas temáticas.',
+  title: 'Aline Fratoni Fotografia — Editorial e família em Maringá',
+  description:
+    'Fotografia editorial e de família em Maringá. Ensaios fine art no estúdio com luz natural e direção delicada. Ensaios em estúdio que contam a sua história. Especializada em ensaios femininos, acompanhamentos e datas temáticas.',
 }
 
 export default function RootLayout({
@@ -17,7 +29,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="pt-BR">
-      <body className={`${inter.variable} ${playfair.variable} font-sans`}>
+      <body className={`${montserrat.variable} ${cormorant.variable} font-sans antialiased`}>
         {children}
       </body>
     </html>

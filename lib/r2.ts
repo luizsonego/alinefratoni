@@ -53,7 +53,37 @@ function mediaTypeFromName(name: string): 'image' | 'video' | null {
 function toPublicUrl(objectKey: string) {
   const baseUrl = getOptionalEnv('R2_PUBLIC_BASE_URL')
   if (!baseUrl) return ''
-  return `${baseUrl.replace(/\/$/, '')}/${encodeURI(objectKey)}`
+  const base = baseUrl.replace(/\/$/, '')
+  const host = (() => {
+    try {
+      return new URL(base).hostname.toLowerCase()
+    } catch {
+      return ''
+    }
+  })()
+  // Endpoint S3 compatível (r2.cloudflarestorage.com) não expõe GET público — só CDN / domínio customizado.
+  if (host === 'r2.cloudflarestorage.com' || host.endsWith('.r2.cloudflarestorage.com')) {
+    return ''
+  }
+  return `${base}/${encodeURI(objectKey)}`
+}
+
+/** URL pública do objeto no CDN (vazio se `R2_PUBLIC_BASE_URL` não estiver definido). */
+export function getR2PublicUrlForObjectKey(objectKey: string) {
+  return toPublicUrl(objectKey)
+}
+
+/** Prefixo R2 para mídia do site público (hero, portfólio). Padrão: `site/public/`. */
+export function getSiteAssetsR2Prefix() {
+  const raw = (getOptionalEnv('R2_SITE_PREFIX') || 'site/public').replace(/^\/+/, '')
+  return ensureTrailingSlash(raw)
+}
+
+/** Garante que só objetos da pasta pública do site sejam expostos via proxy da aplicação. */
+export function isSitePublicAssetObjectKey(objectKey: string): boolean {
+  const k = objectKey.replace(/^\/+/, '')
+  const prefix = getSiteAssetsR2Prefix().replace(/^\/+/, '')
+  return k.startsWith(prefix)
 }
 
 function buildR2Client() {

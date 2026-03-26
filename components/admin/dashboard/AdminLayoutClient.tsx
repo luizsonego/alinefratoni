@@ -8,6 +8,12 @@ function matchRoute(pathname: string): { title: string; subtitle?: string } {
   if (pathname === '/admin' || pathname === '/admin/') {
     return { title: 'Dashboard', subtitle: 'Visão geral do seu estúdio' }
   }
+  if (pathname === '/admin/site') {
+    return {
+      title: 'Site público',
+      subtitle: 'Hero, portfólio, depoimentos, contato, sobre e redes — por abas',
+    }
+  }
   if (pathname === '/admin/projetos') {
     return { title: 'Projetos', subtitle: 'Eventos, entregas e arquivos' }
   }

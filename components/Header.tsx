@@ -1,237 +1,119 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Instagram, Facebook, Menu, X } from 'lucide-react'
+import Link from 'next/link'
+import { usePathname } from 'next/navigation'
+import { Menu, X } from 'lucide-react'
 import { getWhatsAppUrl, WHATSAPP_MESSAGES } from '../utils/whatsapp'
 
+const NAV = [
+  { href: '/#trabalhos', label: 'Trabalhos' },
+  { href: '/portfolio', label: 'Portfólio' },
+  { href: '/#estudio', label: 'O Estúdio' },
+  { href: '/#investimento', label: 'Investimento' },
+  { href: '/#contato', label: 'Contato' },
+] as const
+
 export default function Header() {
-  const [isScrolled, setIsScrolled] = useState(false)
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const pathname = usePathname()
+  const [open, setOpen] = useState(false)
+  const [scrolled, setScrolled] = useState(false)
 
   useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50)
-      // Fechar menu mobile ao rolar
-      if (isMobileMenuOpen) {
-        setIsMobileMenuOpen(false)
-      }
-    }
+    const onScroll = () => setScrolled(window.scrollY > 24)
+    onScroll()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
 
-    window.addEventListener('scroll', handleScroll)
-    return () => window.removeEventListener('scroll', handleScroll)
-  }, [isMobileMenuOpen])
-
+  useEffect(() => {
+    setOpen(false)
+  }, [pathname])
 
   return (
-    <>
-    <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-      isScrolled 
-        ? 'bg-white/90 backdrop-blur-sm shadow-lg' 
-        : 'bg-white/10 backdrop-blur-md border-b border-white/20'
-    }`}>
-      <div className="container-custom">
-        <div className="flex items-center justify-between py-4">
-          {/* Logo */}
-          <div className="flex-shrink-0">
-            <img 
-              src="https://ik.imagekit.io/500milhas/imagemaf?updatedAt=1760552972181"
-              alt="Aline Fratoni Fotografia"
-              className="h-12 w-auto"
-            />
-          </div>
+    <header
+      className={`fixed top-0 left-0 right-0 z-50 transition-[background,box-shadow] duration-300 ${
+        scrolled
+          ? 'border-b border-black/5 bg-[#F9F9F9]/85 shadow-sm backdrop-blur-[10px]'
+          : 'border-b border-transparent bg-[#F9F9F9]/70 backdrop-blur-[10px]'
+      }`}
+    >
+      <div className="container-custom flex items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8">
+        <Link href="/" className="font-serif text-xl tracking-tight text-brand-ink sm:text-2xl">
+          Aline Fratoni
+        </Link>
 
-          {/* Navigation Menu Desktop */}
-          <nav className="hidden lg:flex items-center space-x-8">
-            <a 
-              href="/" 
-              className={`font-medium transition-colors duration-300 ${
-                isScrolled ? 'text-gray-700 hover:text-warm-600' : 'text-white/80 hover:text-white'
-              }`}
-            >
-              Home
-            </a>
-            <a 
-              href="/#sobre" 
-              className={`font-medium transition-colors duration-300 ${
-                isScrolled ? 'text-gray-700 hover:text-warm-600' : 'text-white/80 hover:text-white'
-              }`}
-            >
-              Sobre
-            </a>
-            <a 
-              href="/portfolio" 
-              className={`font-medium transition-colors duration-300 ${
-                isScrolled ? 'text-gray-700 hover:text-warm-600' : 'text-white/80 hover:text-white'
-              }`}
-            >
-              Portfólio
-            </a>
-            <a 
-              href="/#acompanhamentos" 
-              className={`font-medium transition-colors duration-300 ${
-                isScrolled ? 'text-gray-700 hover:text-warm-600' : 'text-white/80 hover:text-white'
-              }`}
-            >
-              Acompanhamentos
-            </a>
-            <a 
-              href="/#blog" 
-              className={`font-medium transition-colors duration-300 ${
-                isScrolled ? 'text-gray-700 hover:text-warm-600' : 'text-white/80 hover:text-white'
-              }`}
-            >
-              Blog
-            </a>
-            <a 
-              href="/#contato" 
-              className={`font-medium transition-colors duration-300 ${
-                isScrolled ? 'text-gray-700 hover:text-warm-600' : 'text-white/80 hover:text-white'
-              }`}
-            >
-              Contato
-            </a>
-          </nav>
-
-          {/* CTA Button and Social Icons - Desktop */}
-          <div className="hidden lg:flex items-center space-x-4">
-            <a 
-              href={getWhatsAppUrl(WHATSAPP_MESSAGES.ORCAMENTO)}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={`px-6 py-3 rounded-lg font-medium transition-all duration-300 ${
-                isScrolled 
-                  ? 'bg-warm-600 hover:bg-warm-700 text-white' 
-                  : 'bg-white/20 hover:bg-white/30 text-white backdrop-blur-sm border border-white/30'
-              }`}
-            >
-              Solicitar Orçamento
-            </a>
-            
-            <div className="flex items-center space-x-2">
-              <a 
-                href="https://www.instagram.com/alinefratonifotografia/" 
-                className={`transition-colors duration-300 ${
-                  isScrolled 
-                    ? 'text-gray-600 hover:text-warm-600' 
-                    : 'text-white/80 hover:text-white'
-                }`}
-                aria-label="Instagram"
-              >
-                <Instagram size={20} />
+        <nav
+          className="absolute left-1/2 hidden -translate-x-1/2 items-center gap-8 lg:flex"
+          aria-label="Principal"
+        >
+          {NAV.map((item) => {
+            const active =
+              (pathname === '/' && item.href.startsWith('/#') && item.label === 'Trabalhos') ||
+              (item.href === '/portfolio' && pathname === '/portfolio')
+            const isRoute = item.href.startsWith('/') && !item.href.startsWith('/#')
+            const className = `nav-link ${active ? 'nav-link-active' : ''}`
+            return isRoute ? (
+              <Link key={item.href} href={item.href} className={className}>
+                {item.label}
+              </Link>
+            ) : (
+              <a key={item.href} href={item.href} className={className}>
+                {item.label}
               </a>
-              <a 
-                href="#" 
-                className={`transition-colors duration-300 ${
-                  isScrolled 
-                    ? 'text-gray-600 hover:text-warm-600' 
-                    : 'text-white/80 hover:text-white'
-                }`}
-                aria-label="Facebook"
-              >
-                <Facebook size={20} />
-              </a>
-            </div>
-          </div>
+            )
+          })}
+        </nav>
 
-          {/* Mobile Menu Button */}
-          <button
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className={`lg:hidden p-2 rounded-lg transition-colors duration-300 ${
-              isScrolled 
-                ? 'text-gray-700 hover:bg-gray-100' 
-                : 'text-white hover:bg-white/10'
-            }`}
-            aria-label="Toggle mobile menu"
+        <div className="flex items-center gap-3">
+          <a
+            href={getWhatsAppUrl(WHATSAPP_MESSAGES.AGENDAR)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn-outline-dark hidden sm:inline-flex"
           >
-            {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+            Agende sua Sessão
+          </a>
+          <button
+            type="button"
+            className="rounded-lg p-2 text-brand-ink lg:hidden"
+            onClick={() => setOpen((v) => !v)}
+            aria-expanded={open}
+            aria-label={open ? 'Fechar menu' : 'Abrir menu'}
+          >
+            {open ? <X size={24} /> : <Menu size={24} />}
           </button>
         </div>
       </div>
 
-      {/* Mobile Menu */}
-      {isMobileMenuOpen && (
-        <div className="lg:hidden absolute top-full left-0 right-0 bg-white/95 backdrop-blur-sm border-t border-gray-200 shadow-lg">
-          <div className="container-custom py-4">
-            <nav className="flex flex-col space-y-4">
-              <a 
-                href="/" 
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="font-medium text-gray-700 hover:text-warm-600 transition-colors duration-300"
-              >
-                Home
-              </a>
-              <a 
-                href="/#sobre" 
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="font-medium text-gray-700 hover:text-warm-600 transition-colors duration-300"
-              >
-                Sobre
-              </a>
-              <a 
-                href="/portfolio" 
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="font-medium text-gray-700 hover:text-warm-600 transition-colors duration-300"
-              >
-                Portfólio
-              </a>
-              <a 
-                href="/#acompanhamentos" 
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="font-medium text-gray-700 hover:text-warm-600 transition-colors duration-300"
-              >
-                Acompanhamentos
-              </a>
-              <a 
-                href="/#blog" 
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="font-medium text-gray-700 hover:text-warm-600 transition-colors duration-300"
-              >
-                Blog
-              </a>
-              <a 
-                href="/#contato" 
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="font-medium text-gray-700 hover:text-warm-600 transition-colors duration-300"
-              >
-                Contato
-              </a>
-              
-              {/* Mobile CTA */}
-              <div className="pt-4 border-t border-gray-200">
-                <a 
-                  href={getWhatsAppUrl(WHATSAPP_MESSAGES.ORCAMENTO)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className="block w-full bg-warm-600 hover:bg-warm-700 text-white text-center py-3 rounded-lg font-medium transition-colors duration-300 mb-4"
-                >
-                  Solicitar Orçamento
+      {open && (
+        <div className="border-t border-black/5 bg-[#F9F9F9]/95 px-4 py-6 backdrop-blur-md lg:hidden">
+          <nav className="flex flex-col gap-4" aria-label="Mobile">
+            {NAV.map((item) => {
+              const isRoute = item.href.startsWith('/') && !item.href.startsWith('/#')
+              const className = 'text-sm font-medium text-brand-ink'
+              const close = () => setOpen(false)
+              return isRoute ? (
+                <Link key={item.href} href={item.href} className={className} onClick={close}>
+                  {item.label}
+                </Link>
+              ) : (
+                <a key={item.href} href={item.href} className={className} onClick={close}>
+                  {item.label}
                 </a>
-                
-                <div className="flex items-center justify-center space-x-4">
-                  <a 
-                    href="#" 
-                    className="text-gray-600 hover:text-warm-600 transition-colors duration-300"
-                    aria-label="Instagram"
-                  >
-                    <Instagram size={24} />
-                  </a>
-                  <a 
-                    href="#" 
-                    className="text-gray-600 hover:text-warm-600 transition-colors duration-300"
-                    aria-label="Facebook"
-                  >
-                    <Facebook size={24} />
-                  </a>
-                </div>
-              </div>
-            </nav>
-          </div>
+              )
+            })}
+            <a
+              href={getWhatsAppUrl(WHATSAPP_MESSAGES.AGENDAR)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-outline-dark mt-2 w-full"
+            >
+              Agende sua Sessão
+            </a>
+          </nav>
         </div>
       )}
     </header>
-
-    </>
-
   )
 }
