@@ -2,11 +2,11 @@ import { NextResponse } from 'next/server'
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 import { readSession } from '@/lib/auth'
-import { prisma } from '@/lib/prisma'
 import { removeLocalCoverIfExists } from '@/lib/save-event-cover'
 import { deleteAllObjectsUnderPrefix, isR2Configured, parseR2FolderRef } from '@/lib/r2'
 
 export const runtime = 'nodejs'
+export const dynamic = 'force-dynamic'
 
 const patchEventSchema = z
   .object({
@@ -34,6 +34,7 @@ type RouteCtx = { params: { eventId: string } }
 export async function PATCH(request: Request, { params }: RouteCtx) {
   const unauthorized = await ensureAdminApi()
   if (unauthorized) return unauthorized
+  const { prisma } = await import('@/lib/prisma')
 
   const eventId = params.eventId?.trim()
   if (!eventId) {
@@ -116,6 +117,7 @@ export async function PATCH(request: Request, { params }: RouteCtx) {
 export async function DELETE(_request: Request, { params }: RouteCtx) {
   const unauthorized = await ensureAdminApi()
   if (unauthorized) return unauthorized
+  const { prisma } = await import('@/lib/prisma')
 
   const eventId = params.eventId?.trim()
   if (!eventId) {

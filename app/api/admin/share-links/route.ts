@@ -3,10 +3,10 @@ import { revalidatePath } from 'next/cache'
 import { ShareExpirationPreset, ShareLinkScope } from '@prisma/client'
 import { z } from 'zod'
 import { readSession } from '@/lib/auth'
-import { prisma } from '@/lib/prisma'
 import { createShareLinkWithUniqueSlug } from '@/lib/share-links'
 
 export const runtime = 'nodejs'
+export const dynamic = 'force-dynamic'
 
 async function ensureAdminApi() {
   const session = await readSession()
@@ -27,6 +27,7 @@ const createSchema = z.object({
 export async function GET(request: Request) {
   const unauthorized = await ensureAdminApi()
   if (unauthorized) return unauthorized
+  const { prisma } = await import('@/lib/prisma')
 
   const eventId = new URL(request.url).searchParams.get('eventId')?.trim()
 

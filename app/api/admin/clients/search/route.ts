@@ -1,9 +1,9 @@
 import type { Prisma } from '@prisma/client'
 import { NextResponse } from 'next/server'
 import { readSession } from '@/lib/auth'
-import { prisma } from '@/lib/prisma'
 
 export const runtime = 'nodejs'
+export const dynamic = 'force-dynamic'
 
 async function ensureAdminApi() {
   const session = await readSession()
@@ -16,6 +16,7 @@ async function ensureAdminApi() {
 export async function GET(request: Request) {
   const unauthorized = await ensureAdminApi()
   if (unauthorized) return unauthorized
+  const { prisma } = await import('@/lib/prisma')
 
   const url = new URL(request.url)
   const q = (url.searchParams.get('q') ?? '').trim()

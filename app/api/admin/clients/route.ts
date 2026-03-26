@@ -1,12 +1,11 @@
 import { NextResponse } from 'next/server'
 import { revalidatePath } from 'next/cache'
-import { readSession } from '@/lib/auth'
-import { prisma } from '@/lib/prisma'
-import { createClientUser, parseCreateClientBody } from '@/lib/admin-clients'
 
 export const runtime = 'nodejs'
+export const dynamic = 'force-dynamic'
 
 async function ensureAdminApi() {
+  const { readSession } = await import('@/lib/auth')
   const session = await readSession()
   if (!session || session.role !== 'ADMIN') {
     return NextResponse.json({ error: 'Não autorizado.' }, { status: 401 })
@@ -18,6 +17,7 @@ export async function GET() {
   const unauthorized = await ensureAdminApi()
   if (unauthorized) return unauthorized
 
+  const { prisma } = await import('@/lib/prisma')
   const clients = await prisma.user.findMany({
     where: { role: 'CLIENT' },
     orderBy: { createdAt: 'desc' },
@@ -49,6 +49,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'JSON inválido.' }, { status: 400 })
   }
 
+  const { createClientUser, parseCreateClientBody } = await import('@/lib/admin-clients')
   const parsed = parseCreateClientBody(json)
   if (!parsed.success) {
     const msg = parsed.error.issues[0]?.message ?? 'Dados inválidos.'

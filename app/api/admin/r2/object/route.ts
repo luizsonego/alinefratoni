@@ -2,10 +2,10 @@ import { NextResponse } from 'next/server'
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 import { readSession } from '@/lib/auth'
-import { prisma } from '@/lib/prisma'
 import { deleteR2ObjectKey, isR2Configured, parseR2FolderRef } from '@/lib/r2'
 
 export const runtime = 'nodejs'
+export const dynamic = 'force-dynamic'
 
 const bodySchema = z.object({
   eventId: z.string().min(10),
@@ -33,6 +33,7 @@ function objectKeyAllowedForEvent(objectKey: string, folderRefs: string[]) {
 export async function DELETE(request: Request) {
   const unauthorized = await ensureAdminApi()
   if (unauthorized) return unauthorized
+  const { prisma } = await import('@/lib/prisma')
 
   if (!isR2Configured()) {
     return NextResponse.json({ error: 'Cloudflare R2 não configurado.' }, { status: 400 })

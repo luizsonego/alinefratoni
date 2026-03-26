@@ -1,10 +1,10 @@
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
 import { readSession } from '@/lib/auth'
-import { prisma } from '@/lib/prisma'
 import { createR2FolderRef, ensureR2Prefix, isR2Configured } from '@/lib/r2'
 
 export const runtime = 'nodejs'
+export const dynamic = 'force-dynamic'
 
 const createFolderSchema = z.object({
   eventId: z.string().min(10),
@@ -32,6 +32,7 @@ async function ensureAdminApi() {
 export async function GET(request: Request) {
   const unauthorized = await ensureAdminApi()
   if (unauthorized) return unauthorized
+  const { prisma } = await import('@/lib/prisma')
 
   const url = new URL(request.url)
   const eventId = url.searchParams.get('eventId')
@@ -60,6 +61,7 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   const unauthorized = await ensureAdminApi()
   if (unauthorized) return unauthorized
+  const { prisma } = await import('@/lib/prisma')
 
   if (!isR2Configured()) {
     return NextResponse.json({ error: 'Cloudflare R2 não configurado.' }, { status: 400 })

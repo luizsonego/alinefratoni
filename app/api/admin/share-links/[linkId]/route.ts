@@ -1,9 +1,9 @@
 import { NextResponse } from 'next/server'
 import { revalidatePath } from 'next/cache'
 import { readSession } from '@/lib/auth'
-import { prisma } from '@/lib/prisma'
 
 export const runtime = 'nodejs'
+export const dynamic = 'force-dynamic'
 
 type RouteCtx = { params: { linkId: string } }
 
@@ -12,6 +12,7 @@ export async function DELETE(_request: Request, { params }: RouteCtx) {
   if (!session || session.role !== 'ADMIN') {
     return NextResponse.json({ error: 'Não autorizado.' }, { status: 401 })
   }
+  const { prisma } = await import('@/lib/prisma')
 
   const id = params.linkId?.trim()
   if (!id) {
