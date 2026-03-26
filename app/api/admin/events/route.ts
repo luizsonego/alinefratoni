@@ -1,11 +1,11 @@
 import { NextResponse } from 'next/server'
 import { revalidatePath } from 'next/cache'
-import { readSession } from '@/lib/auth'
-import { createEventForAdmin } from '@/lib/admin-events'
 
 export const runtime = 'nodejs'
+export const dynamic = 'force-dynamic'
 
 async function ensureAdminApi() {
+  const { readSession } = await import('@/lib/auth')
   const session = await readSession()
   if (!session || session.role !== 'ADMIN') {
     return NextResponse.json({ error: 'Não autorizado.' }, { status: 401 })
@@ -16,6 +16,7 @@ async function ensureAdminApi() {
 export async function POST(request: Request) {
   const unauthorized = await ensureAdminApi()
   if (unauthorized) return unauthorized
+  const { createEventForAdmin } = await import('@/lib/admin-events')
 
   const formData = await request.formData()
   const coverFile = formData.get('cover')
