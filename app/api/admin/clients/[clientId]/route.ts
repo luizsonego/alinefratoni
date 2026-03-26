@@ -7,8 +7,14 @@ import { removeLocalCoverIfExists } from '@/lib/save-event-cover'
 import { deleteAllObjectsUnderPrefix, isR2Configured, parseR2FolderRef } from '@/lib/r2'
 
 export const runtime = 'nodejs'
+export const dynamic = 'force-dynamic'
 
-type RouteCtx = { params: { clientId: string } }
+type RouteCtx = { params: { clientId: string } | Promise<{ clientId: string }> }
+
+async function getClientIdFromParams(params: RouteCtx['params']) {
+  const resolved = await params
+  return resolved?.clientId?.trim() || ''
+}
 
 async function ensureAdminApi() {
   const session = await readSession()
@@ -22,7 +28,7 @@ export async function PATCH(request: Request, { params }: RouteCtx) {
   const unauthorized = await ensureAdminApi()
   if (unauthorized) return unauthorized
 
-  const clientId = params.clientId?.trim()
+  const clientId = await getClientIdFromParams(params)
   if (!clientId) {
     return NextResponse.json({ error: 'ID inválido.' }, { status: 400 })
   }
@@ -60,7 +66,7 @@ export async function DELETE(_request: Request, { params }: RouteCtx) {
   const unauthorized = await ensureAdminApi()
   if (unauthorized) return unauthorized
 
-  const clientId = params.clientId?.trim()
+  const clientId = await getClientIdFromParams(params)
   if (!clientId) {
     return NextResponse.json({ error: 'ID inválido.' }, { status: 400 })
   }
