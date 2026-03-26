@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "(prisma migrate deploy || prisma db push) && prisma generate && next build",
+    "build": "(case \"${DATABASE_URL:-}\" in \"\"|*localhost*|*127.0.0.1*) echo \"Skipping Prisma DB sync during build (DATABASE_URL local/empty).\" ;; *) prisma migrate deploy || prisma db push ;; esac) && prisma generate && next build",
     "start": "next start",
     "lint": "next lint",
     "prisma:generate": "prisma generate",
