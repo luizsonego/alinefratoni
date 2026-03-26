@@ -1,41 +1,58 @@
 import { NextResponse } from 'next/server'
 import { revalidatePath } from 'next/cache'
-import { z } from 'zod'
-import { readSession } from '@/lib/auth'
-import { deleteAllObjectsUnderPrefix, isR2Configured, parseR2FolderRef } from '@/lib/r2'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 
 type RouteCtx = { params: { folderId: string } }
 
-const driveUrlField = z
-  .string()
-  .trim()
-  .min(12)
-  .refine(
-    (u) => {
-      try {
-        const parsed = new URL(u)
-        return parsed.protocol === 'http:' || parsed.protocol === 'https:'
-      } catch {
-        return false
-      }
-    },
-    'URL inválida.'
-  )
-  .refine((u) => /drive\.google\.com/i.test(u), 'Use um link de pasta do Google Drive (drive.google.com).')
+function isValidDriveUrl(value: string) {
+  const url = value.trim()
+  if (url.length < 12) return false
+  try {
+    const parsed = new URL(url)
+    if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') return false
+  } catch {
+    return false
+  }
+  return /drive\.google\.com/i.test(url)
+}
 
-const patchFolderSchema = z
-  .object({
-    title: z.string().trim().min(2, 'Nome deve ter pelo menos 2 caracteres.').max(120).optional(),
-    driveUrl: driveUrlField.optional(),
-  })
-  .refine((b) => b.title !== undefined || b.driveUrl !== undefined, {
-    message: 'Informe título ou URL para atualizar.',
-  })
+function parsePatchFolderBody(json: unknown):
+  | { ok: true; data: { title?: string; driveUrl?: string } }
+  | { ok: false; error: string } {
+  if (!json || typeof json !== 'object') {
+    return { ok: false, error: 'Dados inválidos.' }
+  }
+  const body = json as Record<string, unknown>
+  const out: { title?: string; driveUrl?: string } = {}
+
+  if (body.title !== undefined) {
+    if (typeof body.title !== 'string') return { ok: false, error: 'Nome inválido.' }
+    const t = body.title.trim()
+    if (t.length < 2) return { ok: false, error: 'Nome deve ter pelo menos 2 caracteres.' }
+    if (t.length > 120) return { ok: false, error: 'Nome deve ter no máximo 120 caracteres.' }
+    out.title = t
+  }
+
+  if (body.driveUrl !== undefined) {
+    if (typeof body.driveUrl !== 'string') return { ok: false, error: 'URL inválida.' }
+    const u = body.driveUrl.trim()
+    if (!isValidDriveUrl(u)) {
+      return { ok: false, error: 'Use um link de pasta do Google Drive (drive.google.com).' }
+    }
+    out.driveUrl = u
+  }
+
+  if (out.title === undefined && out.driveUrl === undefined) {
+    return { ok: false, error: 'Informe título ou URL para atualizar.' }
+  }
+
+  return { ok: true, data: out }
+}
 
 async function ensureAdminApi() {
+  const { readSession } = await import('@/lib/auth')
   const session = await readSession()
   if (!session || session.role !== 'ADMIN') {
     return NextResponse.json({ error: 'Não autorizado.' }, { status: 401 })
@@ -60,13 +77,8 @@ export async function PATCH(request: Request, { params }: RouteCtx) {
     return NextResponse.json({ error: 'JSON inválido.' }, { status: 400 })
   }
 
-  const parsed = patchFolderSchema.safeParse(json)
-  if (!parsed.success) {
-    return NextResponse.json(
-      { error: parsed.error.issues[0]?.message ?? 'Dados inválidos.' },
-      { status: 400 }
-    )
-  }
+  const parsed = parsePatchFolderBody(json)
+  if (!parsed.ok) return NextResponse.json({ error: parsed.error }, { status: 400 })
 
   const folder = await prisma.galleryFolder.findUnique({
     where: { id: folderId },
@@ -104,6 +116,7 @@ export async function DELETE(_request: Request, { params }: RouteCtx) {
   const unauthorized = await ensureAdminApi()
   if (unauthorized) return unauthorized
   const { prisma } = await import('@/lib/prisma')
+  const { deleteAllObjectsUnderPrefix, isR2Configured, parseR2FolderRef } = await import('@/lib/r2')
 
   const folderId = params.folderId?.trim()
   if (!folderId) {
