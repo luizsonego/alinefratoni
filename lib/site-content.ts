@@ -351,11 +351,11 @@ export async function getResolvedSiteContent(): Promise<ResolvedSiteContent> {
 
   const hero: HeroPublicContent = row
     ? {
-        title: row.heroTitle,
-        subtitle: row.heroSubtitle,
-        posterUrl: normalizeLegacySiteAssetUrl(row.heroPosterUrl.trim() || DEFAULT_HERO.posterUrl),
-        videoUrl: row.heroVideoUrl.trim() || DEFAULT_HERO.videoUrl,
-      }
+      title: row.heroTitle,
+      subtitle: row.heroSubtitle,
+      posterUrl: normalizeLegacySiteAssetUrl(row.heroPosterUrl.trim() || DEFAULT_HERO.posterUrl),
+      videoUrl: row.heroVideoUrl.trim() || DEFAULT_HERO.videoUrl,
+    }
     : DEFAULT_HERO
 
   const portfolioSection: PortfolioSectionContent = row
