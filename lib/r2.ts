@@ -25,7 +25,11 @@ function getEnv(name: string) {
   if (!value) {
     throw new Error(`${name} não configurado no ambiente.`)
   }
-  return value
+  const trimmed = value.trim()
+  if (!trimmed) {
+    throw new Error(`${name} não configurado no ambiente.`)
+  }
+  return trimmed
 }
 
 function getOptionalEnv(name: string) {
@@ -90,6 +94,9 @@ function buildR2Client() {
   return new S3Client({
     region: 'auto',
     endpoint: getEnv('R2_ENDPOINT'),
+    // R2 é S3 compatível, mas com endpoints que normalmente exigem path-style.
+    // Isso evita variações de canonical URL que podem causar SignatureDoesNotMatch.
+    forcePathStyle: true,
     credentials: {
       accessKeyId: getEnv('R2_ACCESS_KEY_ID'),
       secretAccessKey: getEnv('R2_SECRET_ACCESS_KEY'),
@@ -286,7 +293,8 @@ export async function getR2ObjectBuffer(objectKey: string): Promise<Buffer> {
 export function sanitizeObjectFilename(name: string) {
   return name
     .replace(/[^\w.\-() ]+/g, '_')
-    .replace(/\s+/g, ' ')
+    // Evita espaços na Key (pode causar diferenças de encoding na validação de assinatura).
+    .replace(/\s+/g, '_')
     .trim()
     .slice(0, 180)
 }

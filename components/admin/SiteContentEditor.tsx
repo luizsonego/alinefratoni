@@ -46,7 +46,13 @@ async function putToPresignedUrl(signedUrl: string, file: File, contentType: str
     throw new Error(`Falha no PUT para o R2 (provável CORS/preflight). Detalhes: ${details}`)
   }
   if (!res.ok) {
-    throw new Error(`Upload falhou no PUT para o R2 (${res.status}).`)
+    let details = ''
+    try {
+      details = (await res.text())?.slice(0, 300) ?? ''
+    } catch {
+      // ignore
+    }
+    throw new Error(`Upload falhou no PUT para o R2 (${res.status}). ${details}`.trim())
   }
 }
 
