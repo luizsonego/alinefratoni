@@ -1,9 +1,6 @@
 import { NextResponse } from 'next/server'
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
-import { readSession } from '@/lib/auth'
-import { removeLocalCoverIfExists } from '@/lib/save-event-cover'
-import { deleteAllObjectsUnderPrefix, isR2Configured, parseR2FolderRef } from '@/lib/r2'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -22,6 +19,7 @@ const patchEventSchema = z
   })
 
 async function ensureAdminApi() {
+  const { readSession } = await import('@/lib/auth')
   const session = await readSession()
   if (!session || session.role !== 'ADMIN') {
     return NextResponse.json({ error: 'Não autorizado.' }, { status: 401 })
@@ -118,6 +116,8 @@ export async function DELETE(_request: Request, { params }: RouteCtx) {
   const unauthorized = await ensureAdminApi()
   if (unauthorized) return unauthorized
   const { prisma } = await import('@/lib/prisma')
+  const { removeLocalCoverIfExists } = await import('@/lib/save-event-cover')
+  const { deleteAllObjectsUnderPrefix, isR2Configured, parseR2FolderRef } = await import('@/lib/r2')
 
   const eventId = params.eventId?.trim()
   if (!eventId) {
