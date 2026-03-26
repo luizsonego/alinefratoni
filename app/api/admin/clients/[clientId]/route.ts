@@ -1,7 +1,5 @@
 import { NextResponse } from 'next/server'
 import { revalidatePath } from 'next/cache'
-import { readSession } from '@/lib/auth'
-import { updateClientSchema, updateClientUser } from '@/lib/admin-clients'
 import { prisma } from '@/lib/prisma'
 import { removeLocalCoverIfExists } from '@/lib/save-event-cover'
 import { deleteAllObjectsUnderPrefix, isR2Configured, parseR2FolderRef } from '@/lib/r2'
@@ -17,6 +15,7 @@ async function getClientIdFromParams(params: RouteCtx['params']) {
 }
 
 async function ensureAdminApi() {
+  const { readSession } = await import('@/lib/auth')
   const session = await readSession()
   if (!session || session.role !== 'ADMIN') {
     return NextResponse.json({ error: 'Não autorizado.' }, { status: 401 })
@@ -40,6 +39,7 @@ export async function PATCH(request: Request, { params }: RouteCtx) {
     return NextResponse.json({ error: 'JSON inválido.' }, { status: 400 })
   }
 
+  const { updateClientSchema, updateClientUser } = await import('@/lib/admin-clients')
   const parsed = updateClientSchema.safeParse(json)
   if (!parsed.success) {
     return NextResponse.json(
