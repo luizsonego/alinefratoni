@@ -3,6 +3,7 @@
 import { useId } from 'react'
 import { motion } from 'framer-motion'
 import type { HeroPublicContent } from '@/lib/site-content'
+// rgb(234, 158, 160)
 
 const container = {
   hidden: { opacity: 0 },
@@ -28,7 +29,7 @@ function HeroAmbientBackground() {
     >
       {/* Blobs orgânicos — opacidade baixa, blur alto */}
       <motion.div
-        className="absolute -left-[18%] top-[8%] h-[min(62vh,520px)] w-[min(62vh,520px)] rounded-full bg-brand-accent/[0.09] blur-[clamp(72px,12vw,140px)]"
+        className="absolute -left-[18%] top-[8%] h-[min(62vh,520px)] w-[min(62vh,520px)] rounded-full bg-[#EA9EA0]/[0.099] blur-[clamp(72px,12vw,140px)]"
         animate={{
           x: [0, 36, -12, 0],
           y: [0, 28, 8, 0],
@@ -37,7 +38,7 @@ function HeroAmbientBackground() {
         transition={{ duration: 26, repeat: Infinity, ease: 'easeInOut' }}
       />
       <motion.div
-        className="absolute -right-[12%] top-[38%] h-[min(48vh,420px)] w-[min(48vh,420px)] rounded-full bg-brand-ink/[0.045] blur-[clamp(64px,10vw,120px)]"
+        className="absolute -right-[12%] top-[38%] h-[min(48vh,420px)] w-[min(48vh,420px)] rounded-full bg-[#EA9EA0]/[0.0945] blur-[clamp(64px,10vw,120px)]"
         animate={{
           x: [0, -28, 14, 0],
           y: [0, 20, -16, 0],
@@ -46,7 +47,7 @@ function HeroAmbientBackground() {
         transition={{ duration: 32, repeat: Infinity, ease: 'easeInOut', delay: 2 }}
       />
       <motion.div
-        className="absolute bottom-[-8%] left-[28%] h-[min(38vh,340px)] w-[min(38vh,340px)] rounded-full bg-[#c9b896]/[0.11] blur-[clamp(56px,8vw,100px)]"
+        className="absolute bottom-[-8%] left-[28%] h-[min(38vh,340px)] w-[min(38vh,340px)] rounded-full bg-[#EA9EA0]/[0.091] blur-[clamp(56px,8vw,100px)]"
         animate={{
           x: [0, 22, -18, 0],
           y: [0, -14, 10, 0],
@@ -56,10 +57,10 @@ function HeroAmbientBackground() {
 
       {/* Véu cônico girando muito devagar — sensação de “luz varrendo o estúdio” */}
       <motion.div
-        className="absolute left-1/2 top-[42%] h-[150vmax] w-[150vmax] -translate-x-1/2 -translate-y-1/2 opacity-[0.04]"
+        className="absolute left-1/2 top-[42%] h-[150vmax] w-[150vmax] -translate-x-1/2 -translate-y-1/2 opacity-[0.06]"
         style={{
           background:
-            'conic-gradient(from 200deg at 50% 50%, transparent 0deg, rgba(196,167,125,0.55) 45deg, transparent 95deg, rgba(26,26,26,0.12) 160deg, transparent 220deg, rgba(196,167,125,0.35) 290deg, transparent 360deg)',
+            'conic-gradient(from 200deg at 50% 50%, transparent 0deg, rgba(234, 158, 160, 0.25) 45deg, transparent 95deg, rgba(26,26,26,0.22) 160deg, transparent 220deg, rgba(196,167,125,0.25) 290deg, transparent 360deg)',
         }}
         animate={{ rotate: [0, 360] }}
         transition={{ duration: 140, repeat: Infinity, ease: 'linear' }}
@@ -67,7 +68,7 @@ function HeroAmbientBackground() {
 
       {/* Trama diagonal quase invisível — textura de papel premium */}
       <div
-        className="absolute inset-0 opacity-[0.035]"
+        className="absolute inset-0 opacity-[0.2035]"
         style={{
           backgroundImage:
             'repeating-linear-gradient(105deg, transparent 0px, transparent 48px, rgba(26,26,26,0.12) 48px, rgba(26,26,26,0.12) 49px)',
@@ -189,11 +190,11 @@ export default function Hero({ title, subtitle, posterUrl, videoUrl }: HeroPubli
           transition={{ duration: 0.75, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
         >
           <div
-            className="relative aspect-[3/4] max-h-[640px] overflow-hidden rounded-2xl shadow-[0_24px_60px_-20px_rgba(0,0,0,0.22)] will-change-transform sm:rounded-[1.25rem]"
+            className="relative aspect-[3/4] max-h-[640px] overflow-hidden rounded-2xl shadow-[0_24px_60px_-20px_rgba(0,0,0,0.52)] will-change-transform sm:rounded-[1.25rem]"
           >
             <div className="absolute inset-0 bg-black/25" aria-hidden />
             <video
-              className="h-full w-full scale-105 object-cover blur-[2px] sm:blur-[1.5px]"
+              className="h-full w-full scale-105 object-cover blur-[0.2px] sm:blur-[0.5px]"
               autoPlay
               muted
               loop

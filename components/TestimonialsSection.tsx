@@ -55,8 +55,8 @@ export default function TestimonialsSection({ title, subtitle, items }: Testimon
           <CardsStrip items={items} />
           <CardsStrip items={items} />
         </div>
-        <div className="pointer-events-none absolute inset-y-0 left-0 w-16 bg-gradient-to-r from-brand-bg to-transparent" />
-        <div className="pointer-events-none absolute inset-y-0 right-0 w-16 bg-gradient-to-l from-brand-bg to-transparent" />
+        {/* <div className="pointer-events-none absolute inset-y-0 left-0 w-16 bg-gradient-to-r from-brand-bg to-transparent" />
+        <div className="pointer-events-none absolute inset-y-0 right-0 w-16 bg-gradient-to-l from-brand-bg to-transparent" /> */}
       </div>
 
       <div className="mx-auto mt-8 flex justify-center gap-2">

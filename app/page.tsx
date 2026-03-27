@@ -17,7 +17,7 @@ const LOCAL_BUSINESS_JSON_LD = {
   description:
     'Fotografia editorial e de família em Maringá — ensaios fine art, gestante, newborn e família.',
   url: typeof process.env.NEXT_PUBLIC_SITE_URL === 'string' ? process.env.NEXT_PUBLIC_SITE_URL : undefined,
-  telephone: '+55-44-0000-0000',
+  telephone: '+55-44-9142-4790',
   address: {
     '@type': 'PostalAddress',
     addressLocality: 'Maringá',
@@ -36,8 +36,10 @@ export default async function Home() {
   const jsonLd = {
     ...LOCAL_BUSINESS_JSON_LD,
     image: site.hero.posterUrl,
-    url: LOCAL_BUSINESS_JSON_LD.url ?? 'https://alinefratonifotografia.com.br',
+    url: LOCAL_BUSINESS_JSON_LD.url ?? 'https://alinefratoni.com.br',
+    description: site.about.paragraphs,
   }
+
 
   return (
     <>

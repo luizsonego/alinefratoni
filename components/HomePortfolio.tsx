@@ -105,7 +105,7 @@ export default function HomePortfolio({ portfolioSection, items }: HomePortfolio
 
   const { scrollYProgress } = useScroll({
     target: gridRef,
-    offset: ['start 0.92', 'end 0.08'],
+    offset: ['start 1.92', 'end 0.08'],
   })
 
   const onMove = useCallback((e: React.MouseEvent) => {

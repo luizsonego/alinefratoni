@@ -32,15 +32,14 @@ export default function Header() {
 
   return (
     <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-[background,box-shadow] duration-300 ${
-        scrolled
+      className={`fixed top-0 left-0 right-0 z-50 transition-[background,box-shadow] duration-300 ${scrolled
           ? 'border-b border-black/5 bg-[#F9F9F9]/85 shadow-sm backdrop-blur-[10px]'
           : 'border-b border-transparent bg-[#F9F9F9]/70 backdrop-blur-[10px]'
-      }`}
+        }`}
     >
       <div className="container-custom flex items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8">
         <Link href="/" className="font-serif text-xl tracking-tight text-brand-ink sm:text-2xl">
-          Aline Fratoni
+          Aline Fratoni Fotografia
         </Link>
 
         <nav

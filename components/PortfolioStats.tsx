@@ -6,7 +6,7 @@ import { Camera, Users, Heart, Star } from 'lucide-react'
 const stats = [
   {
     icon: Camera,
-    value: '500+',
+    value: '5000+',
     label: 'Fotos Realizadas',
     color: 'text-warm-600'
   },
@@ -63,7 +63,7 @@ export default function PortfolioStats() {
               <div className="inline-flex items-center justify-center w-16 h-16 bg-warm-100 rounded-full mb-4 group-hover:bg-warm-200 transition-colors duration-300">
                 <stat.icon className={`w-8 h-8 ${stat.color}`} />
               </div>
-              
+
               <motion.div
                 initial={{ scale: 0 }}
                 whileInView={{ scale: 1 }}
@@ -73,7 +73,7 @@ export default function PortfolioStats() {
               >
                 {stat.value}
               </motion.div>
-              
+
               <p className="text-gray-600 font-medium">{stat.label}</p>
             </motion.div>
           ))}
