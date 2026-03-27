@@ -1,0 +1,26 @@
+{
+  "name": "Aline Fratoni Fotografia",
+  "short_name": "Aline Fratoni",
+  "description": "Fotografia editorial e de família em Maringá — ensaios, gestante, newborn e família.",
+  "start_url": "/",
+  "id": "/",
+  "icons": [
+    {
+      "src": "/favicon/web-app-manifest-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/favicon/web-app-manifest-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "theme_color": "#F9F9F9",
+  "background_color": "#F9F9F9",
+  "display": "standalone",
+  "lang": "pt-BR",
+  "dir": "ltr"
+}

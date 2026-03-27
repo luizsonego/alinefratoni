@@ -6,6 +6,7 @@ import TestimonialsSection from '../components/TestimonialsSection'
 import ProcessSection from '../components/ProcessSection'
 import Footer from '../components/Footer'
 import SmoothScroll from '../components/SmoothScroll'
+import { getSiteUrl } from '@/lib/site-config'
 import { getResolvedSiteContent } from '@/lib/site-content'
 
 export const dynamic = 'force-dynamic'
@@ -16,7 +17,7 @@ const LOCAL_BUSINESS_JSON_LD = {
   name: 'Aline Fratoni Fotografia',
   description:
     'Fotografia editorial e de família em Maringá — ensaios fine art, gestante, newborn e família.',
-  url: typeof process.env.NEXT_PUBLIC_SITE_URL === 'string' ? process.env.NEXT_PUBLIC_SITE_URL : undefined,
+  url: getSiteUrl(),
   telephone: '+55-44-9142-4790',
   address: {
     '@type': 'PostalAddress',
@@ -36,7 +37,7 @@ export default async function Home() {
   const jsonLd = {
     ...LOCAL_BUSINESS_JSON_LD,
     image: site.hero.posterUrl,
-    url: LOCAL_BUSINESS_JSON_LD.url ?? 'https://alinefratoni.com.br',
+    url: LOCAL_BUSINESS_JSON_LD.url,
     description: site.about.paragraphs,
   }
 

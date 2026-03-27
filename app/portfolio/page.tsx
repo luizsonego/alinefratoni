@@ -1,3 +1,4 @@
+import type { Metadata } from 'next'
 import Header from '../../components/Header'
 import Footer from '../../components/Footer'
 import PortfolioHero from '../../components/PortfolioHero'
@@ -5,13 +6,28 @@ import PublicPortfolioGallery from '../../components/PublicPortfolioGallery'
 import PortfolioStats from '../../components/PortfolioStats'
 import PortfolioCTA from '../../components/PortfolioCTA'
 import { getPortfolioPageData, getResolvedSiteContent } from '@/lib/site-content'
+import { SITE_NAME } from '@/lib/site-config'
 
 export const dynamic = 'force-dynamic'
 
-export const metadata = {
-  title: 'Portfólio - Aline Fratoni Fotografia',
-  description:
-    'Explore o portfólio de ensaios fotográficos — família, gestante, editorial e mais.',
+const portfolioDesc =
+  'Explore o portfólio de ensaios fotográficos — família, gestante, editorial e mais.'
+
+export const metadata: Metadata = {
+  title: 'Portfólio',
+  description: portfolioDesc,
+  alternates: { canonical: '/portfolio' },
+  openGraph: {
+    type: 'website',
+    url: '/portfolio',
+    title: `Portfólio — ${SITE_NAME}`,
+    description: portfolioDesc,
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: `Portfólio — ${SITE_NAME}`,
+    description: portfolioDesc,
+  },
 }
 
 export default async function PortfolioPage() {

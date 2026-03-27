@@ -1,3 +1,4 @@
+import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import GalleryInfoCard from '@/components/cliente/GalleryInfoCard'
 import PhotoMasonry from '@/components/cliente/PhotoMasonry'
@@ -8,8 +9,47 @@ import { isDriveConfigured } from '@/lib/google-drive'
 import { isR2Configured } from '@/lib/r2'
 import { getShareLinkForPublicView, isShareLinkExpired } from '@/lib/share-links'
 import { verifyShareAccessCookie } from '@/lib/share-token'
+import { SITE_NAME } from '@/lib/site-config'
 
 type Props = { params: { slug: string } }
+
+function clipDescription(text: string | null | undefined, max = 160): string {
+  const t = (text ?? '').replace(/\s+/g, ' ').trim()
+  if (t.length <= max) return t || `Galeria de fotos — ${SITE_NAME}`
+  return `${t.slice(0, max - 1).trim()}…`
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const slug = params.slug?.trim()
+  if (!slug) return { robots: { index: false, follow: false } }
+
+  const share = await getShareLinkForPublicView(slug)
+  if (!share || isShareLinkExpired(share)) {
+    return { title: 'Galeria', robots: { index: false, follow: false } }
+  }
+
+  const path = `/p/${slug}`
+  const title = share.event.title
+  const description = clipDescription(share.event.infoText)
+
+  return {
+    title,
+    description,
+    robots: { index: false, follow: false },
+    alternates: { canonical: path },
+    openGraph: {
+      type: 'website',
+      url: path,
+      title: `${title} — ${SITE_NAME}`,
+      description,
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: `${title} — ${SITE_NAME}`,
+      description,
+    },
+  }
+}
 
 export default async function PublicSharePage({ params }: Props) {
   const slug = params.slug?.trim()

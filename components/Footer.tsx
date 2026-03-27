@@ -40,7 +40,7 @@ export default function Footer({ social, footer, contact }: FooterProps) {
   const yt = social.youtube.trim()
 
   return (
-    <footer id="contato" className="bg-[#EA9EA0] text-[#272727]">
+    <footer id="contato" className="bg-[#ca8a8c] text-[#272727]">
       <div className="container-custom grid gap-12 px-4 py-16 sm:px-6 lg:grid-cols-12 lg:gap-10 lg:px-8 lg:py-20">
         <div className="lg:col-span-3">
           <p className="font-serif text-2xl text-[#272727]">Aline Fratoni</p>
@@ -150,7 +150,7 @@ export default function Footer({ social, footer, contact }: FooterProps) {
                 <select
                   value={shootType}
                   onChange={(e) => setShootType(e.target.value)}
-                  className="mt-2 w-full rounded-lg border border-[#272727]/25 bg-[#EA9EA0] px-4 py-3 font-sans text-sm text-[#272727] outline-none focus:border-brand-accent"
+                  className="mt-2 w-full rounded-lg border border-[#272727]/25 bg-[#ca8a8c] px-4 py-3 font-sans text-sm text-[#272727] outline-none focus:border-brand-accent"
                 >
                   <option value="">Selecione</option>
                   {contact.shootTypes.map((t) => (
