@@ -67,7 +67,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Cloudflare R2 não configurado.' }, { status: 400 })
   }
 
-  const body = await request.json()
+  const body = await request.json().catch(() => null)
   const parsed = createFolderSchema.safeParse(body)
   if (!parsed.success) {
     return NextResponse.json({ error: parsed.error.issues[0]?.message ?? 'Dados inválidos.' }, { status: 400 })
@@ -83,7 +83,15 @@ export async function POST(request: Request) {
 
   const folderSlug = slugify(parsed.data.title) || 'pasta'
   const prefix = `events/${parsed.data.eventId}/${Date.now()}-${folderSlug}/`
-  await ensureR2Prefix(prefix)
+  try {
+    await ensureR2Prefix(prefix)
+  } catch (e) {
+    const details = e instanceof Error ? e.message : String(e)
+    return NextResponse.json(
+      { error: 'Falha ao criar pasta no Cloudflare R2.', details },
+      { status: 500 }
+    )
+  }
 
   const created = await prisma.galleryFolder.create({
     data: {
