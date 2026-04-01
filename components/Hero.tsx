@@ -137,13 +137,15 @@ function ScrollChevron({ className = '' }: { className?: string }) {
 export default function Hero({ title, subtitle, posterUrl, videoUrl }: HeroPublicContent) {
   const words = title.split(' ')
 
+  const poster = posterUrl
+
   return (
     <section
       id="home"
       className="relative min-h-screen overflow-hidden bg-brand-bg pt-24 sm:pt-28"
     >
       <HeroAmbientBackground />
-
+      <Image src={poster} alt={title} className="object-cover" />
       <div className="container-custom relative z-10 grid min-h-[calc(100vh-5rem)] items-center gap-10 px-4 pb-16 sm:px-6 lg:grid-cols-2 lg:gap-16 lg:px-8 lg:pb-24">
         <div className="flex min-w-0 flex-col justify-center text-left">
           <motion.h1
