@@ -194,9 +194,8 @@ export default function Hero({ title, subtitle, posterUrl, videoUrl }: HeroPubli
             className="relative aspect-[3/4] max-h-[640px] overflow-hidden rounded-2xl shadow-[0_24px_60px_-20px_rgba(0,0,0,0.52)] will-change-transform sm:rounded-[1.25rem]"
           >
             <div className="absolute inset-0 bg-black/25" aria-hidden />
-            <div className="h-full w-full scale-105 object-cover blur-[0.2px] sm:blur-[0.5px]"
-            >
-              <Image src={posterUrl} alt={title} fill className="object-cover" />
+            <div className="h-full w-full scale-105 object-cover blur-[0.2px] sm:blur-[0.5px]">
+              <img src={posterUrl} alt={title} className="object-cover" />
             </div>
             {/* <video
               className="h-full w-full scale-105 object-cover blur-[0.2px] sm:blur-[0.5px]"
