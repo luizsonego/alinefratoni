@@ -5,6 +5,7 @@ import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { downloadUrlInBrowser } from '@/lib/download-in-browser'
 import { type GalleryMedia } from '@/lib/gallery-media'
 import Image from 'next/image'
+import blurDataURL from '@/public/Imagemlogo.png'
 
 const ASPECT = ['aspect-[4/5]', 'aspect-[3/4]', 'aspect-square', 'aspect-[5/4]'] as const
 
@@ -15,6 +16,8 @@ const GRID_LOAD_MORE = 10
 const GRID_IMAGE_QUALITY = 45
 /** Lightbox: arquivo maior / mais nítido. */
 const LIGHTBOX_IMAGE_QUALITY = 80
+
+const BLUR_IMAGE = blurDataURL.src
 
 /** `/_next/image` busca no servidor sem cookies — quebra `/api/share/...` com senha. */
 function isAppProxyMediaUrl(src: string) {
@@ -148,7 +151,8 @@ export default function PhotoMasonry({ images, folderTitle, driveFolderUrl }: Pr
               priority={index < 8}
               unoptimized={isAppProxyMediaUrl(image.thumbnailUrl)}
               loading={index < 4 ? 'eager' : 'lazy'}
-              layout='responsive'
+              placeholder='blur'
+              blurDataURL={BLUR_IMAGE}
             />
             <div className="pointer-events-none absolute inset-0 z-[1] bg-gradient-to-t from-black/70 via-black/10 to-transparent opacity-80 transition group-hover:opacity-100" />
             <button
