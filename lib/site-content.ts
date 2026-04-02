@@ -88,7 +88,7 @@ export const DEFAULT_HERO: HeroPublicContent = {
   title: 'Capturando a essência através da luz.',
   subtitle: 'Fotografia editorial e de família em Maringá',
   posterUrl:
-    'https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?auto=format&fit=crop&q=100&w=1200',
+    'https://cdn.alinefratoni.com.br/site/public/1775069730925-Aline_Jean_e_Davi_-_maes_2025-5.jpg',
   videoUrl: '/videos/8033527-uhd_3840_2160_24fps.mp4',
 }
 

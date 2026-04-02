@@ -195,7 +195,7 @@ export default function Hero({ title, subtitle, posterUrl, videoUrl }: HeroPubli
           >
             <div className="absolute inset-0 bg-black/25" aria-hidden />
             <div className="h-full w-full scale-105 object-cover blur-[0.2px] sm:blur-[0.5px]">
-              <Image src={posterUrl} alt={title} className="object-cover" />
+              <Image src={posterUrl} alt={title} className="object-cover h-full w-full" fill />
             </div>
             {/* <video
               className="h-full w-full scale-105 object-cover blur-[0.2px] sm:blur-[0.5px]"
