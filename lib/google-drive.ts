@@ -68,16 +68,26 @@ export async function getDriveImagesFromFolder(driveUrl: string): Promise<DriveI
   const data = await response.json()
   const files = Array.isArray(data.files) ? data.files : []
 
-  return files.map((file: any) => ({
-    mediaType: String(file.mimeType ?? '').startsWith('video/') ? 'video' : 'image',
-    id: file.id,
-    name: file.name,
-    thumbnailUrl:
-      file.thumbnailLink?.replace('=s220', '=s1200') ??
-      `https://lh3.googleusercontent.com/d/${file.id}=s1200`,
-    downloadUrl:
-      file.webContentLink ?? `https://drive.google.com/uc?export=download&id=${file.id}`,
-    viewUrl: file.webViewLink ?? `https://drive.google.com/file/d/${file.id}/view`,
-    previewUrl: `https://drive.google.com/uc?export=download&id=${file.id}`,
-  }))
+  return files.map((file: any) => {
+    const mediaType = String(file.mimeType ?? '').startsWith('video/') ? 'video' : 'image'
+    const id = file.id
+    /** Grade: leve (~480px) para carregar rápido; lightbox usa `previewUrl` maior. */
+    const thumb =
+      file.thumbnailLink?.replace('=s220', '=s480') ??
+      `https://lh3.googleusercontent.com/d/${id}=s480`
+    const downloadUrl =
+      file.webContentLink ?? `https://drive.google.com/uc?export=download&id=${id}`
+    return {
+      mediaType,
+      id,
+      name: file.name,
+      thumbnailUrl: thumb,
+      downloadUrl,
+      viewUrl: file.webViewLink ?? `https://drive.google.com/file/d/${id}/view`,
+      previewUrl:
+        mediaType === 'video'
+          ? downloadUrl
+          : `https://lh3.googleusercontent.com/d/${id}=s2048`,
+    }
+  })
 }
