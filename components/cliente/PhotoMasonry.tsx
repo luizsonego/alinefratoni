@@ -5,7 +5,6 @@ import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { downloadUrlInBrowser } from '@/lib/download-in-browser'
 import { type GalleryMedia } from '@/lib/gallery-media'
 import Image from 'next/image'
-import blurDataURL from '@/public/Imagemlogo.png'
 
 const ASPECT = ['aspect-[4/5]', 'aspect-[3/4]', 'aspect-square', 'aspect-[5/4]'] as const
 
@@ -17,7 +16,7 @@ const GRID_IMAGE_QUALITY = 45
 /** Lightbox: arquivo maior / mais nítido. */
 const LIGHTBOX_IMAGE_QUALITY = 80
 
-const BLUR_IMAGE = blurDataURL.src
+const BLUR_IMAGE = 'https://ik.imagekit.io/500milhas/imagemlogo_mZ0y_rS4w.png'
 
 /** `/_next/image` busca no servidor sem cookies — quebra `/api/share/...` com senha. */
 function isAppProxyMediaUrl(src: string) {
