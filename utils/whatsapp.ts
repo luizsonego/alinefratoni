@@ -1,5 +1,5 @@
 // Configuração do WhatsApp
-export const WHATSAPP_NUMBER = '5511999999999' // Substitua pelo número real
+export const WHATSAPP_NUMBER = '554491424790' // Substitua pelo número real
 
 // Mensagens pré-definidas
 export const WHATSAPP_MESSAGES = {
