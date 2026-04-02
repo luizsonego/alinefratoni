@@ -9,12 +9,12 @@ import Image from 'next/image'
 const ASPECT = ['aspect-[4/5]', 'aspect-[3/4]', 'aspect-square', 'aspect-[5/4]'] as const
 
 /** Primeira leva na grade — sensação de página instantânea; o restante entra com scroll. */
-const GRID_INITIAL_COUNT = 16
-const GRID_LOAD_MORE = 14
+const GRID_INITIAL_COUNT = 10
+const GRID_LOAD_MORE = 10
 /** Miniaturas: qualidade menor no otimizador Next (R2 / mesma origem). */
-const GRID_IMAGE_QUALITY = 58
+const GRID_IMAGE_QUALITY = 45
 /** Lightbox: arquivo maior / mais nítido. */
-const LIGHTBOX_IMAGE_QUALITY = 92
+const LIGHTBOX_IMAGE_QUALITY = 80
 
 /** `/_next/image` busca no servidor sem cookies — quebra `/api/share/...` com senha. */
 function isAppProxyMediaUrl(src: string) {
@@ -147,6 +147,8 @@ export default function PhotoMasonry({ images, folderTitle, driveFolderUrl }: Pr
               quality={GRID_IMAGE_QUALITY}
               priority={index < 8}
               unoptimized={isAppProxyMediaUrl(image.thumbnailUrl)}
+              loading={index < 4 ? 'eager' : 'lazy'}
+              layout='responsive'
             />
             <div className="pointer-events-none absolute inset-0 z-[1] bg-gradient-to-t from-black/70 via-black/10 to-transparent opacity-80 transition group-hover:opacity-100" />
             <button
@@ -280,6 +282,7 @@ export default function PhotoMasonry({ images, folderTitle, driveFolderUrl }: Pr
                       src={lightbox.previewUrl}
                       alt={lightbox.name}
                       fill
+                      style={{ position: 'relative' }}
                       className="object-contain"
                       sizes="100vw"
                       quality={LIGHTBOX_IMAGE_QUALITY}
