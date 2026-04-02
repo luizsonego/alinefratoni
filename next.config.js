@@ -29,6 +29,7 @@ const nextConfig = {
       { protocol: 'https', hostname: 'ik.imagekit.io' },
       // R2 Public Development URL (pub-*.r2.dev) — fallback se R2_PUBLIC_BASE_URL não estiver no build
       { protocol: 'https', hostname: '**.r2.dev' },
+      { protocol: 'https', hostname: 'cdn.alinefratoni.com.br', pathname: '/site/public/**', },
       ...r2RemoteImagePatterns(),
     ],
   },
