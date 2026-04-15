@@ -12,6 +12,13 @@ enum UserRole {
   CLIENT
 }
 
+enum EventCategory {
+  FEMININE
+  KIDS
+  EVENT
+  OTHER
+}
+
 model User {
   id           String        @id @default(cuid())
   name         String
@@ -41,16 +48,20 @@ enum ShareExpirationPreset {
 }
 
 model Event {
-  id          String          @id @default(cuid())
-  title       String
-  infoText    String?
-  coverUrl    String?
-  clientId    String
-  createdAt   DateTime        @default(now())
-  updatedAt   DateTime        @updatedAt
-  client      User            @relation("ClientEvents", fields: [clientId], references: [id], onDelete: Cascade)
-  folders     GalleryFolder[]
-  shareLinks  ShareLink[]
+  id           String          @id @default(cuid())
+  title        String
+  infoText     String?
+  coverUrl     String?
+  clientId     String
+  category     EventCategory?  @default(OTHER)
+  shootDate    DateTime?
+  deliveredAt  DateTime?
+  sessionValue Float?
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+  client       User            @relation("ClientEvents", fields: [clientId], references: [id], onDelete: Cascade)
+  folders      GalleryFolder[]
+  shareLinks   ShareLink[]
 }
 
 model GalleryFolder {

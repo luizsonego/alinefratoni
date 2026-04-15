@@ -3,6 +3,101 @@ import { z } from 'zod'
 import { hashPassword } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 
+// ─── CRM Types ────────────────────────────────────────────────────────────────
+
+export type ClientLoyaltyTier = 'nova' | 'recorrente' | 'vip'
+
+export type AdminClientRow = {
+  id: string
+  name: string
+  username: string | null
+  email: string | null
+  phone: string | null
+  createdAt: string
+  projectCount: number
+  /** Soma de Event.sessionValue para todos os projetos do cliente (R$). */
+  ltv: number
+  lastEventDate: string | null
+  /** lastEventDate + 90 dias; null se não tem histórico. */
+  nextContactDate: string | null
+  loyaltyTier: ClientLoyaltyTier
+  /** Últimos 3 projetos para exibição no card */
+  recentProjects: { id: string; title: string; coverUrl: string | null }[]
+}
+
+function deriveLoyaltyTier(projectCount: number): ClientLoyaltyTier {
+  if (projectCount >= 5) return 'vip'
+  if (projectCount >= 2) return 'recorrente'
+  return 'nova'
+}
+
+const NEXT_CONTACT_DAYS = 90
+
+export async function listAdminClients(): Promise<AdminClientRow[]> {
+  const rows = await prisma.user.findMany({
+    where: { role: 'CLIENT' },
+    orderBy: { createdAt: 'desc' },
+    select: {
+      id: true,
+      name: true,
+      username: true,
+      email: true,
+      phone: true,
+      createdAt: true,
+      clientEvents: {
+        orderBy: { createdAt: 'desc' },
+        select: {
+          id: true,
+          title: true,
+          coverUrl: true,
+          createdAt: true,
+          sessionValue: true,
+        },
+      },
+    },
+  })
+
+  return rows.map((u) => {
+    const events = u.clientEvents
+    const ltv = events.reduce((sum, e) => sum + (e.sessionValue ?? 0), 0)
+    const lastEvent = events[0] ?? null
+    const lastEventDate = lastEvent ? lastEvent.createdAt.toISOString() : null
+    const nextContactDate = lastEvent
+      ? new Date(lastEvent.createdAt.getTime() + NEXT_CONTACT_DAYS * 86400000).toISOString()
+      : null
+
+    return {
+      id: u.id,
+      name: u.name,
+      username: u.username,
+      email: u.email,
+      phone: u.phone,
+      createdAt: u.createdAt.toISOString(),
+      projectCount: events.length,
+      ltv,
+      lastEventDate,
+      nextContactDate,
+      loyaltyTier: deriveLoyaltyTier(events.length),
+      recentProjects: events.slice(0, 3).map((e) => ({
+        id: e.id,
+        title: e.title,
+        coverUrl: e.coverUrl,
+      })),
+    }
+  })
+}
+
+// ── Mantém export de ClientListItem para retrocompatibilidade ─────────────────
+export type ClientListItem = {
+  id: string
+  name: string
+  username: string | null
+  email: string | null
+  phone: string | null
+  createdAt: string
+  clientEvents: { id: string; title: string }[]
+}
+
 const emptyToUndef = (v: unknown) => (v === undefined || v === null || v === '' ? undefined : v)
 const onlyDigits = (value: string) => value.replace(/\D/g, '')
 

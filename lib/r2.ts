@@ -1,9 +1,12 @@
 import {
+  CompleteMultipartUploadCommand,
+  CreateMultipartUploadCommand,
   DeleteObjectCommand,
   GetObjectCommand,
   ListObjectsV2Command,
   PutObjectCommand,
   S3Client,
+  UploadPartCommand,
 } from '@aws-sdk/client-s3'
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
 
@@ -186,6 +189,61 @@ export async function createR2UploadUrl(params: {
     expiresIn: params.expiresInSeconds ?? 900,
   })
   return signedUrl
+}
+
+/** Inicia upload multipart e retorna UploadId. */
+export async function createMultipartUpload(params: {
+  objectKey: string
+  contentType: string
+}) {
+  const client = buildR2Client()
+  const bucket = getEnv('R2_BUCKET')
+  const command = new CreateMultipartUploadCommand({
+    Bucket: bucket,
+    Key: params.objectKey,
+    ContentType: params.contentType,
+  })
+  const response = await client.send(command)
+  return response.UploadId
+}
+
+/** Gera URL assinada para uma parte específica do upload multipart. */
+export async function createPartUploadUrl(params: {
+  objectKey: string
+  uploadId: string
+  partNumber: number
+  expiresInSeconds?: number
+}) {
+  const client = buildR2Client()
+  const bucket = getEnv('R2_BUCKET')
+  const command = new UploadPartCommand({
+    Bucket: bucket,
+    Key: params.objectKey,
+    UploadId: params.uploadId,
+    PartNumber: params.partNumber,
+  })
+  return getSignedUrl(client, command, {
+    expiresIn: params.expiresInSeconds ?? 3600,
+  })
+}
+
+/** Finaliza upload multipart. */
+export async function completeMultipartUpload(params: {
+  objectKey: string
+  uploadId: string
+  parts: { ETag: string; PartNumber: number }[]
+}) {
+  const client = buildR2Client()
+  const bucket = getEnv('R2_BUCKET')
+  const command = new CompleteMultipartUploadCommand({
+    Bucket: bucket,
+    Key: params.objectKey,
+    UploadId: params.uploadId,
+    MultipartUpload: {
+      Parts: params.parts.sort((a, b) => a.PartNumber - b.PartNumber),
+    },
+  })
+  return client.send(command)
 }
 
 export type ListR2MediaOptions = {

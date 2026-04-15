@@ -3,7 +3,7 @@
 import { Film, ImageIcon, Loader2 } from 'lucide-react'
 import Link from 'next/link'
 import { useState } from 'react'
-import R2UploadPanel from '@/components/admin/R2UploadPanel'
+import { UploadWorkspace } from '@/components/admin/upload/UploadWorkspace'
 import { Card } from '@/components/admin/ui/Card'
 
 type ProjectUploadWorkspaceProps = {
@@ -104,12 +104,10 @@ export function ProjectUploadWorkspace({
       </div>
 
       {tab === 'photos' ? (
-        <R2UploadPanel
-          events={eventOptions}
+        <UploadWorkspace
+          eventId={eventId}
+          eventTitle={eventTitle}
           r2Enabled={r2Enabled}
-          lockedEventId={eventId}
-          lockedEventLabel={lockedLabel}
-          imagesOnly
         />
       ) : (
         <Card padding="lg">

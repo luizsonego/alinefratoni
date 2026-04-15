@@ -1,57 +1,60 @@
 'use client'
 
-import { Mail, Pencil, Plus, Send, Smartphone, Trash2, Users } from 'lucide-react'
+import { Plus, Search, Users, X } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useState } from 'react'
-import { Card } from '@/components/admin/ui/Card'
+import { useMemo, useState } from 'react'
+import type { AdminClientRow } from '@/lib/admin-clients'
 import { EmptyState } from '@/components/admin/ui/EmptyState'
+import { ClientProfileCard } from '@/components/admin/dashboard/ClientProfileCard'
 
-export type ClientListItem = {
-  id: string
-  name: string
-  username: string | null
-  email: string | null
-  phone: string | null
-  createdAt: string
-  clientEvents: { id: string; title: string }[]
-}
+// ── Keep backward-compat re-export so existing server component keeps working ──
+export type { ClientListItem } from '@/lib/admin-clients'
 
 type ClientsPageContentProps = {
-  clients: ClientListItem[]
-}
-
-function initials(name: string) {
-  return name
-    .split(/\s+/)
-    .filter(Boolean)
-    .map((w) => w[0])
-    .join('')
-    .slice(0, 2)
-    .toUpperCase()
+  clients: AdminClientRow[]
 }
 
 export function ClientsPageContent({ clients }: ClientsPageContentProps) {
   const router = useRouter()
   const [deletingId, setDeletingId] = useState<string | null>(null)
+  const [query, setQuery] = useState('')
 
-  function sendAccessViaWhatsApp(client: ClientListItem) {
-    if (!client.phone) {
+  // ── Filtering ────────────────────────────────────────────────────────────────
+
+  const filtered = useMemo(() => {
+    if (!query) return clients
+    const q = query.toLowerCase()
+    return clients.filter(
+      (c) =>
+        c.name.toLowerCase().includes(q) ||
+        c.email?.toLowerCase().includes(q) ||
+        c.phone?.includes(q)
+    )
+  }, [clients, query])
+
+  // ── Stats ────────────────────────────────────────────────────────────────────
+
+  const totalLtv = clients.reduce((sum, c) => sum + c.ltv, 0)
+  const vipCount = clients.filter((c) => c.loyaltyTier === 'vip').length
+
+  // ── Actions ──────────────────────────────────────────────────────────────────
+
+  function sendAccessViaWhatsApp(c: AdminClientRow) {
+    if (!c.phone) {
       window.alert('Este cliente não possui telefone cadastrado.')
       return
     }
-
-    const phoneDigits = client.phone.replace(/\D/g, '')
+    const phoneDigits = c.phone.replace(/\D/g, '')
     const defaultPassword = phoneDigits.slice(-5)
     if (!phoneDigits || defaultPassword.length < 5) {
       window.alert('Telefone inválido para envio por WhatsApp.')
       return
     }
-
-    const loginIdentifier = client.username ?? client.email ?? client.phone
+    const loginIdentifier = c.username ?? c.email ?? c.phone
     const loginUrl = `${window.location.origin}/login`
     const text = [
-      `Olá, ${client.name}!`,
+      `Olá, ${c.name}!`,
       '',
       'Aqui estão seus dados de acesso:',
       `- Login: ${loginIdentifier}`,
@@ -62,7 +65,6 @@ export function ClientsPageContent({ clients }: ClientsPageContentProps) {
       '',
       'Se precisar de suporte para acessar, me avise.',
     ].join('\n')
-
     const whatsappUrl = `https://wa.me/${phoneDigits}?text=${encodeURIComponent(text)}`
     window.open(whatsappUrl, '_blank', 'noopener,noreferrer')
   }
@@ -72,9 +74,8 @@ export function ClientsPageContent({ clients }: ClientsPageContentProps) {
       !window.confirm(
         `Excluir o cliente "${name}" e todos os projetos vinculados? Esta ação não pode ser desfeita.`
       )
-    ) {
-      return
-    }
+    ) return
+
     setDeletingId(id)
     try {
       const res = await fetch(`/api/admin/clients/${encodeURIComponent(id)}`, { method: 'DELETE' })
@@ -90,6 +91,8 @@ export function ClientsPageContent({ clients }: ClientsPageContentProps) {
       setDeletingId(null)
     }
   }
+
+  // ── Empty ────────────────────────────────────────────────────────────────────
 
   if (clients.length === 0) {
     return (
@@ -109,12 +112,32 @@ export function ClientsPageContent({ clients }: ClientsPageContentProps) {
     )
   }
 
+  // ── Render ───────────────────────────────────────────────────────────────────
+
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <p className="text-sm text-zinc-500">
-          {clients.length} cliente{clients.length !== 1 ? 's' : ''} cadastrado{clients.length !== 1 ? 's' : ''}
-        </p>
+      {/* Header + stat metrics */}
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        {/* Summary metrics */}
+        <div className="flex flex-wrap gap-4">
+          <div className="rounded-xl border border-zinc-800 bg-zinc-900/60 px-4 py-3">
+            <p className="text-xs text-zinc-600">Total clientes</p>
+            <p className="mt-0.5 text-xl font-semibold text-zinc-100">{clients.length}</p>
+          </div>
+          <div className="rounded-xl border border-zinc-800 bg-zinc-900/60 px-4 py-3">
+            <p className="text-xs text-zinc-600">LTV total</p>
+            <p className="mt-0.5 text-xl font-semibold text-warm-400">
+              {totalLtv > 0
+                ? totalLtv.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
+                : '—'}
+            </p>
+          </div>
+          <div className="rounded-xl border border-zinc-800 bg-zinc-900/60 px-4 py-3">
+            <p className="text-xs text-zinc-600">Clientes VIP</p>
+            <p className="mt-0.5 text-xl font-semibold text-zinc-100">{vipCount}</p>
+          </div>
+        </div>
+
         <Link
           href="/admin/clientes/novo"
           className="inline-flex items-center gap-2 rounded-xl bg-warm-600 px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-warm-900/20 transition hover:bg-warm-500"
@@ -124,93 +147,57 @@ export function ClientsPageContent({ clients }: ClientsPageContentProps) {
         </Link>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-        {clients.map((c) => (
-          <Card key={c.id} className="flex flex-col">
-            <div className="flex items-start justify-between gap-3">
-              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-zinc-800 text-sm font-semibold text-zinc-200">
-                {initials(c.name)}
-              </div>
-              <div className="flex shrink-0 flex-wrap justify-end gap-1.5">
-                <Link
-                  href={`/admin/clientes/${c.id}`}
-                  className="inline-flex items-center gap-1 rounded-lg border border-zinc-700 px-2.5 py-1.5 text-xs font-medium text-zinc-300 transition hover:border-zinc-600 hover:bg-zinc-800"
-                >
-                  <Pencil className="h-3.5 w-3.5" /> Editar
-                </Link>
-                <button
-                  type="button"
-                  disabled={deletingId === c.id}
-                  onClick={() => void deleteClient(c.id, c.name)}
-                  className="inline-flex items-center gap-1 rounded-lg border border-red-500/35 bg-red-500/10 px-2.5 py-1.5 text-xs font-medium text-red-200 transition hover:bg-red-500/20 disabled:opacity-50"
-                >
-                  <Trash2 className="h-3.5 w-3.5" /> Excluir
-                </button>
-                <button
-                  type="button"
-                  onClick={() => sendAccessViaWhatsApp(c)}
-                  className="rounded-lg border border-zinc-700 px-2.5 py-1.5 text-xs font-medium text-zinc-300 transition hover:border-zinc-600 hover:bg-zinc-800"
-                >
-                  <span className="inline-flex items-center gap-1.5">
-                    <Send className="h-3.5 w-3.5" /> Enviar acesso
-                  </span>
-                </button>
-              </div>
-            </div>
-            <h3 className="mt-4 font-serif text-lg font-semibold text-zinc-100">{c.name}</h3>
-            {c.username ? (
-              <p className="mt-1 text-xs text-zinc-600">
-                Usuário: <span className="text-zinc-400">{c.username}</span>
-              </p>
-            ) : null}
-            <div className="mt-3 space-y-2 text-sm text-zinc-500">
-              {c.email ? (
-                <p className="flex items-center gap-2">
-                  <Mail className="h-4 w-4 shrink-0" /> {c.email}
-                </p>
-              ) : (
-                <p className="text-zinc-600">Sem e-mail</p>
-              )}
-              {c.phone ? (
-                <p className="flex items-center gap-2">
-                  <Smartphone className="h-4 w-4 shrink-0" /> {c.phone}
-                </p>
-              ) : (
-                <p className="text-zinc-600">Sem telefone</p>
-              )}
-            </div>
-            <div className="mt-4 border-t border-zinc-800 pt-4">
-              <p className="text-xs font-medium uppercase tracking-wider text-zinc-600">Projetos</p>
-              {c.clientEvents.length === 0 ? (
-                <p className="mt-2 text-sm text-zinc-600">Nenhum evento vinculado</p>
-              ) : (
-                <ul className="mt-2 space-y-1">
-                  {c.clientEvents.map((ev) => (
-                    <li key={ev.id}>
-                      <Link
-                        href={`/admin/projetos/${ev.id}`}
-                        className="text-sm text-warm-400 hover:text-warm-300"
-                      >
-                        {ev.title}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-            <p className="mt-4 text-xs text-zinc-600">
-              Cadastro: {new Date(c.createdAt).toLocaleString('pt-BR')}
-            </p>
-          </Card>
-        ))}
+      {/* Search bar */}
+      <div className="relative">
+        <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-500" />
+        <input
+          type="text"
+          placeholder="Buscar por nome, e-mail ou telefone…"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          className="w-full rounded-xl border border-zinc-800 bg-zinc-900/70 py-2.5 pl-10 pr-10 text-sm text-zinc-200 placeholder-zinc-600 outline-none transition focus:border-zinc-600 focus:ring-1 focus:ring-zinc-600/50"
+        />
+        {query && (
+          <button
+            onClick={() => setQuery('')}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-300"
+          >
+            <X className="h-3.5 w-3.5" />
+          </button>
+        )}
       </div>
 
-      <Card padding="md">
-        <h3 className="font-serif text-base font-semibold text-zinc-100">Histórico de acessos</h3>
-        <p className="mt-1 text-sm text-zinc-500">
-          Em breve: registros reais de login e downloads por cliente.
+      {/* Count after filter */}
+      {query && (
+        <p className="text-xs text-zinc-500">
+          {filtered.length} de {clients.length} clientes
         </p>
-      </Card>
+      )}
+
+      {/* Client cards grid */}
+      {filtered.length > 0 ? (
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+          {filtered.map((c) => (
+            <ClientProfileCard
+              key={c.id}
+              client={c}
+              onDelete={() => void deleteClient(c.id, c.name)}
+              deleting={deletingId === c.id}
+              onSendAccess={() => sendAccessViaWhatsApp(c)}
+            />
+          ))}
+        </div>
+      ) : (
+        <div className="flex flex-col items-center gap-3 py-16 text-center">
+          <p className="text-zinc-400">Nenhum cliente encontrado</p>
+          <button
+            onClick={() => setQuery('')}
+            className="text-sm text-warm-400 underline underline-offset-2"
+          >
+            Limpar busca
+          </button>
+        </div>
+      )}
     </div>
   )
 }

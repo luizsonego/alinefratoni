@@ -13,10 +13,23 @@ const patchEventSchema = z
     coverUrl: z
       .union([z.string().url('URL de capa inválida.'), z.literal(''), z.null()])
       .optional(),
+    category: z.enum(['FEMININE', 'KIDS', 'EVENT', 'OTHER']).optional(),
+    shootDate: z.union([z.string().datetime({ offset: true }), z.literal(''), z.null()]).optional(),
+    deliveredAt: z.union([z.string().datetime({ offset: true }), z.literal(''), z.null()]).optional(),
+    sessionValue: z.union([z.number().nonnegative(), z.null()]).optional(),
   })
-  .refine((o) => o.title !== undefined || o.infoText !== undefined || o.clientId !== undefined || o.coverUrl !== undefined, {
-    message: 'Nenhum campo para atualizar.',
-  })
+  .refine(
+    (o) =>
+      o.title !== undefined ||
+      o.infoText !== undefined ||
+      o.clientId !== undefined ||
+      o.coverUrl !== undefined ||
+      o.category !== undefined ||
+      o.shootDate !== undefined ||
+      o.deliveredAt !== undefined ||
+      o.sessionValue !== undefined,
+    { message: 'Nenhum campo para atualizar.' }
+  )
 
 async function ensureAdminApi() {
   const { readSession } = await import('@/lib/auth')
@@ -77,6 +90,10 @@ export async function PATCH(request: Request, { params }: RouteCtx) {
     infoText?: string | null
     clientId?: string
     coverUrl?: string | null
+    category?: 'FEMININE' | 'KIDS' | 'EVENT' | 'OTHER'
+    shootDate?: Date | null
+    deliveredAt?: Date | null
+    sessionValue?: number | null
   } = {}
 
   if (parsed.data.title !== undefined) data.title = parsed.data.title
@@ -89,12 +106,18 @@ export async function PATCH(request: Request, { params }: RouteCtx) {
   if (parsed.data.clientId !== undefined) data.clientId = parsed.data.clientId
   if (parsed.data.coverUrl !== undefined) {
     const raw = parsed.data.coverUrl
-    if (raw === '' || raw === null) {
-      data.coverUrl = null
-    } else {
-      data.coverUrl = raw
-    }
+    data.coverUrl = raw === '' || raw === null ? null : raw
   }
+  if (parsed.data.category !== undefined) data.category = parsed.data.category
+  if (parsed.data.shootDate !== undefined) {
+    const raw = parsed.data.shootDate
+    data.shootDate = raw === '' || raw === null ? null : new Date(raw)
+  }
+  if (parsed.data.deliveredAt !== undefined) {
+    const raw = parsed.data.deliveredAt
+    data.deliveredAt = raw === '' || raw === null ? null : new Date(raw)
+  }
+  if (parsed.data.sessionValue !== undefined) data.sessionValue = parsed.data.sessionValue
 
   await prisma.event.update({
     where: { id: eventId },
