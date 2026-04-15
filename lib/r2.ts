@@ -74,9 +74,14 @@ export function looksLikeImageFilename(name: string): boolean {
  * se vier vazio ou `application/octet-stream`, infere pela extensão do arquivo.
  */
 export function r2UploadContentTypeForFile(file: File): string {
-  const declared = file.type.trim()
+  return r2UploadContentTypeFromFilename(file.type, file.name)
+}
+
+/** Mesma regra que `r2UploadContentTypeForFile`, para rotas que só recebem nome + MIME declarado (ex.: URL assinada). */
+export function r2UploadContentTypeFromFilename(declaredMime: string, filename: string): string {
+  const declared = declaredMime.trim()
   if (declared && declared !== 'application/octet-stream') return declared
-  const ext = extFromName(file.name).toLowerCase()
+  const ext = extFromName(filename).toLowerCase()
   return MIME_BY_EXT[ext] || declared || 'application/octet-stream'
 }
 

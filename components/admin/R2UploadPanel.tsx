@@ -83,6 +83,10 @@ async function parseJsonSafe(response: Response) {
   }
 }
 
+/**
+ * Upload direto ao R2 via URL assinada (corpo da requisição não passa pela Vercel — evita FUNCTION_PAYLOAD_TOO_LARGE).
+ * Exige CORS no bucket R2 para `PUT` a partir do domínio do admin (igual ao fluxo de vídeo do site).
+ */
 function putWithProgress(
   file: File,
   folderId: string,
@@ -90,37 +94,57 @@ function putWithProgress(
   expectImageOnly: boolean
 ) {
   return new Promise<void>((resolve, reject) => {
-    const xhr = new XMLHttpRequest()
-    xhr.open('POST', '/api/admin/r2/upload')
-    xhr.upload.onprogress = (event) => {
-      if (event.lengthComputable) {
-        onProgress(event.loaded, event.total)
+    void (async () => {
+      const initRes = await fetch('/api/admin/r2/upload-url', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          folderId,
+          filename: file.name,
+          contentType: file.type || 'application/octet-stream',
+          ...(expectImageOnly ? { expectImage: true } : {}),
+        }),
+      })
+      const initData = await parseJsonSafe(initRes)
+      if (!initRes.ok) {
+        reject(
+          new Error(
+            (initData as { error?: string } | null)?.error ??
+              `Falha ao preparar upload (${initRes.status}).`
+          )
+        )
+        return
       }
-    }
-    xhr.onerror = () => reject(new Error('Falha de rede no upload.'))
-    xhr.onabort = () => reject(new Error('Upload cancelado.'))
-    xhr.onload = () => {
-      if (xhr.status >= 200 && xhr.status < 300) {
-        resolve()
-      } else {
-        let message = `Upload falhou com status ${xhr.status}.`
-        try {
-          const parsed = JSON.parse(xhr.responseText) as { error?: string }
-          if (parsed?.error) message = parsed.error
-        } catch {
-          // sem JSON de erro
-        }
-        reject(new Error(message))
+      const signedUrl = (initData as { signedUrl?: string } | null)?.signedUrl
+      const putContentType = (initData as { contentType?: string } | null)?.contentType
+      if (!signedUrl?.trim() || !putContentType?.trim()) {
+        reject(new Error('Resposta inválida ao preparar upload no R2.'))
+        return
       }
-    }
 
-    const formData = new FormData()
-    formData.append('folderId', folderId)
-    formData.append('file', file)
-    if (expectImageOnly) {
-      formData.append('expectImage', '1')
-    }
-    xhr.send(formData)
+      const xhr = new XMLHttpRequest()
+      xhr.open('PUT', signedUrl)
+      xhr.setRequestHeader('Content-Type', putContentType)
+      xhr.upload.onprogress = (event) => {
+        if (event.lengthComputable) {
+          onProgress(event.loaded, event.total)
+        }
+      }
+      xhr.onerror = () => reject(new Error('Falha de rede no upload (verifique CORS do bucket R2).'))
+      xhr.onabort = () => reject(new Error('Upload cancelado.'))
+      xhr.onload = () => {
+        if (xhr.status >= 200 && xhr.status < 300) {
+          resolve()
+        } else {
+          let message = `Upload falhou com status ${xhr.status}.`
+          if (xhr.responseText) {
+            message = `${message} ${xhr.responseText.slice(0, 200)}`.trim()
+          }
+          reject(new Error(message))
+        }
+      }
+      xhr.send(file)
+    })().catch(reject)
   })
 }
 
