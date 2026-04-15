@@ -67,8 +67,12 @@ function isImageOrVideo(file: File) {
   return file.type.startsWith('image/') || file.type.startsWith('video/')
 }
 
+function nameLooksLikeImage(name: string) {
+  return /\.(jpe?g|png|gif|webp|avif|heic|heif|bmp)$/i.test(name)
+}
+
 function isImage(file: File) {
-  return file.type.startsWith('image/')
+  return file.type.startsWith('image/') || nameLooksLikeImage(file.name)
 }
 
 async function parseJsonSafe(response: Response) {

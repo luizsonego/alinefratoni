@@ -1,7 +1,13 @@
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
 import { readSession } from '@/lib/auth'
-import { isR2Configured, parseR2FolderRef, uploadFileToR2Prefix } from '@/lib/r2'
+import {
+  isR2Configured,
+  looksLikeImageFilename,
+  parseR2FolderRef,
+  r2UploadContentTypeForFile,
+  uploadFileToR2Prefix,
+} from '@/lib/r2'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -40,7 +46,11 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Arquivo inválido.' }, { status: 400 })
   }
 
-  if (formData.get('expectImage') === '1' && !file.type.startsWith('image/')) {
+  if (
+    formData.get('expectImage') === '1' &&
+    !file.type.startsWith('image/') &&
+    !looksLikeImageFilename(file.name)
+  ) {
     return NextResponse.json(
       { error: 'Neste fluxo só são aceitas imagens. Use o Google Drive para vídeos.' },
       { status: 400 }
@@ -62,7 +72,7 @@ export async function POST(request: Request) {
     uploaded = await uploadFileToR2Prefix({
       prefix,
       filename: file.name,
-      contentType: file.type || 'application/octet-stream',
+      contentType: r2UploadContentTypeForFile(file),
       body: new Uint8Array(arrayBuffer),
     })
   } catch (e) {

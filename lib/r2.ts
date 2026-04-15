@@ -7,7 +7,17 @@ import {
 } from '@aws-sdk/client-s3'
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
 
-const IMAGE_EXTENSIONS = new Set(['.jpg', '.jpeg', '.png', '.webp', '.gif', '.avif'])
+const IMAGE_EXTENSIONS = new Set([
+  '.jpg',
+  '.jpeg',
+  '.png',
+  '.webp',
+  '.gif',
+  '.avif',
+  '.heic',
+  '.heif',
+  '.bmp',
+])
 const VIDEO_EXTENSIONS = new Set(['.mp4', '.mov', '.webm', '.m4v'])
 
 export type R2MediaFile = {
@@ -52,6 +62,22 @@ function mediaTypeFromName(name: string): 'image' | 'video' | null {
   if (IMAGE_EXTENSIONS.has(ext)) return 'image'
   if (VIDEO_EXTENSIONS.has(ext)) return 'video'
   return null
+}
+
+/** Imagem reconhecida pela extensão do nome (útil quando o browser manda MIME vazio ou genérico). */
+export function looksLikeImageFilename(name: string): boolean {
+  return mediaTypeFromName(name) === 'image'
+}
+
+/**
+ * Content-Type para PutObject: prefere o MIME declarado pelo browser;
+ * se vier vazio ou `application/octet-stream`, infere pela extensão do arquivo.
+ */
+export function r2UploadContentTypeForFile(file: File): string {
+  const declared = file.type.trim()
+  if (declared && declared !== 'application/octet-stream') return declared
+  const ext = extFromName(file.name).toLowerCase()
+  return MIME_BY_EXT[ext] || declared || 'application/octet-stream'
 }
 
 function toPublicUrl(objectKey: string) {
@@ -256,6 +282,9 @@ const MIME_BY_EXT: Record<string, string> = {
   '.webp': 'image/webp',
   '.gif': 'image/gif',
   '.avif': 'image/avif',
+  '.heic': 'image/heic',
+  '.heif': 'image/heif',
+  '.bmp': 'image/bmp',
   '.mp4': 'video/mp4',
   '.webm': 'video/webm',
   '.mov': 'video/quicktime',

@@ -1,7 +1,13 @@
 import { randomUUID } from 'crypto'
 import { mkdir, unlink, writeFile } from 'fs/promises'
 import path from 'path'
-import { deleteR2ObjectKey, isR2Configured, uploadFileToR2Prefix } from '@/lib/r2'
+import {
+  deleteR2ObjectKey,
+  isR2Configured,
+  looksLikeImageFilename,
+  r2UploadContentTypeForFile,
+  uploadFileToR2Prefix,
+} from '@/lib/r2'
 
 const UPLOAD_REL = '/uploads/events'
 const R2_COVERS_PREFIX = 'site/events/covers'
@@ -12,6 +18,10 @@ const ALLOWED = new Map<string, string>([
   ['image/png', '.png'],
   ['image/webp', '.webp'],
   ['image/gif', '.gif'],
+  ['image/avif', '.avif'],
+  ['image/heic', '.heic'],
+  ['image/heif', '.heif'],
+  ['image/bmp', '.bmp'],
 ])
 
 function uploadDir() {
@@ -41,9 +51,15 @@ export async function saveEventCoverFile(file: File): Promise<string> {
     throw new Error(`Imagem muito grande (máximo ${MAX_BYTES / 1024 / 1024}MB).`)
   }
 
-  const ext = ALLOWED.get(file.type)
+  let effectiveType = file.type
+  let ext = ALLOWED.get(effectiveType)
+  if (!ext && looksLikeImageFilename(file.name)) {
+    const inferred = r2UploadContentTypeForFile(file)
+    ext = ALLOWED.get(inferred)
+    if (ext) effectiveType = inferred
+  }
   if (!ext) {
-    throw new Error('Formato não permitido. Use JPG, PNG, WebP ou GIF.')
+    throw new Error('Formato não permitido. Use JPG, PNG, WebP, GIF, AVIF, HEIC ou BMP.')
   }
 
   if (shouldUseR2ForCoverUpload()) {
@@ -55,7 +71,7 @@ export async function saveEventCoverFile(file: File): Promise<string> {
     const uploaded = await uploadFileToR2Prefix({
       prefix: R2_COVERS_PREFIX,
       filename,
-      contentType: file.type,
+      contentType: effectiveType,
       body: buffer,
     })
     if (!uploaded.publicUrl) {
