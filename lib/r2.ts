@@ -84,13 +84,17 @@ function toPublicUrl(objectKey: string) {
   const baseUrl = getOptionalEnv('R2_PUBLIC_BASE_URL')
   if (!baseUrl) return ''
   const base = baseUrl.replace(/\/$/, '')
-  const host = (() => {
-    try {
-      return new URL(base).hostname.toLowerCase()
-    } catch {
-      return ''
-    }
-  })()
+  let parsed: URL
+  try {
+    parsed = new URL(base)
+  } catch {
+    // Base inválida (ex.: domínio sem esquema) — não devolve string que falhe `new URL()` no restante do app.
+    return ''
+  }
+  if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
+    return ''
+  }
+  const host = parsed.hostname.toLowerCase()
   // Endpoint S3 compatível (r2.cloudflarestorage.com) não expõe GET público — só CDN / domínio customizado.
   if (host === 'r2.cloudflarestorage.com' || host.endsWith('.r2.cloudflarestorage.com')) {
     return ''
