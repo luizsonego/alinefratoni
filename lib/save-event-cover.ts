@@ -5,7 +5,7 @@ import { deleteR2ObjectKey, isR2Configured, uploadFileToR2Prefix } from '@/lib/r
 
 const UPLOAD_REL = '/uploads/events'
 const R2_COVERS_PREFIX = 'site/events/covers'
-const MAX_BYTES = 5 * 1024 * 1024
+const MAX_BYTES = 25 * 1024 * 1024
 
 const ALLOWED = new Map<string, string>([
   ['image/jpeg', '.jpg'],
@@ -38,7 +38,7 @@ export async function saveEventCoverFile(file: File): Promise<string> {
     throw new Error('Selecione uma imagem de capa.')
   }
   if (file.size > MAX_BYTES) {
-    throw new Error('Imagem muito grande (máximo 5MB).')
+    throw new Error(`Imagem muito grande (máximo ${MAX_BYTES / 1024 / 1024}MB).`)
   }
 
   const ext = ALLOWED.get(file.type)
