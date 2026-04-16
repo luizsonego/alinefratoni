@@ -340,26 +340,45 @@ export type FullSiteEditorState = ResolvedSiteContent & {
 }
 
 export async function getResolvedSiteContent(): Promise<ResolvedSiteContent> {
-  const [row, homeRows, totalCount] = await Promise.all([
-    prisma.sitePublicContent.findUnique({ where: { id: SITE_CONTENT_ID } }),
-    prisma.portfolioShowcaseItem.findMany({
-      where: { showOnHome: true },
-      orderBy: { homeSortOrder: 'asc' },
-    }),
-    prisma.portfolioShowcaseItem.count(),
-  ])
+  type SiteRow = Awaited<ReturnType<typeof prisma.sitePublicContent.findUnique>>
+  type HomeRow = Awaited<ReturnType<typeof prisma.portfolioShowcaseItem.findMany>>
+
+  let row: SiteRow = null
+  let homeRows: HomeRow = []
+  let totalCount = 0
+
+  try {
+    ;[row, homeRows, totalCount] = await Promise.all([
+      prisma.sitePublicContent.findUnique({ where: { id: SITE_CONTENT_ID } }),
+      prisma.portfolioShowcaseItem.findMany({
+        where: { showOnHome: true },
+        orderBy: { homeSortOrder: 'asc' },
+      }),
+      prisma.portfolioShowcaseItem.count(),
+    ])
+  } catch (err) {
+    console.error(
+      '[getResolvedSiteContent] Falha ao aceder à base de dados — a servir conteúdo por omissão.',
+      err
+    )
+  }
 
   const hero: HeroPublicContent = row
     ? {
-      title: row.heroTitle,
-      subtitle: row.heroSubtitle,
-      posterUrl: normalizeLegacySiteAssetUrl(row.heroPosterUrl.trim() || DEFAULT_HERO.posterUrl),
-      videoUrl: row.heroVideoUrl.trim() || DEFAULT_HERO.videoUrl,
+      title: (row.heroTitle ?? '').trim() || DEFAULT_HERO.title,
+      subtitle: (row.heroSubtitle ?? '').trim() || DEFAULT_HERO.subtitle,
+      posterUrl: normalizeLegacySiteAssetUrl(
+        (row.heroPosterUrl ?? '').trim() || DEFAULT_HERO.posterUrl
+      ),
+      videoUrl: (row.heroVideoUrl ?? '').trim() || DEFAULT_HERO.videoUrl,
     }
     : DEFAULT_HERO
 
   const portfolioSection: PortfolioSectionContent = row
-    ? { title: row.portfolioTitle, subtitle: row.portfolioSubtitle }
+    ? {
+      title: (row.portfolioTitle ?? '').trim() || DEFAULT_PORTFOLIO_SECTION.title,
+      subtitle: (row.portfolioSubtitle ?? '').trim() || DEFAULT_PORTFOLIO_SECTION.subtitle,
+    }
     : DEFAULT_PORTFOLIO_SECTION
 
   let portfolioHomeItems: PortfolioTileContent[]
@@ -436,14 +455,29 @@ export async function getPortfolioPageData(): Promise<{
   categories: PortfolioCategoryPublic[]
   items: PortfolioPageItem[]
 }> {
-  const [row, categories, items] = await Promise.all([
-    prisma.sitePublicContent.findUnique({ where: { id: SITE_CONTENT_ID } }),
-    prisma.portfolioCategory.findMany({ orderBy: { sortOrder: 'asc' } }),
-    prisma.portfolioShowcaseItem.findMany({
-      orderBy: { gallerySortOrder: 'asc' },
-      include: { category: true },
-    }),
-  ])
+  type SiteRow = Awaited<ReturnType<typeof prisma.sitePublicContent.findUnique>>
+  type CatRows = Awaited<ReturnType<typeof prisma.portfolioCategory.findMany>>
+  type ItemRows = Awaited<ReturnType<typeof prisma.portfolioShowcaseItem.findMany<{ include: { category: true } }>>>
+
+  let row: SiteRow = null
+  let categories: CatRows = []
+  let items: ItemRows = []
+
+  try {
+    ;[row, categories, items] = await Promise.all([
+      prisma.sitePublicContent.findUnique({ where: { id: SITE_CONTENT_ID } }),
+      prisma.portfolioCategory.findMany({ orderBy: { sortOrder: 'asc' } }),
+      prisma.portfolioShowcaseItem.findMany({
+        orderBy: { gallerySortOrder: 'asc' },
+        include: { category: true },
+      }),
+    ])
+  } catch (err) {
+    console.error(
+      '[getPortfolioPageData] Falha ao aceder à base de dados — a servir portfólio de demonstração.',
+      err
+    )
+  }
 
   const chips = parseStringArrayJson(row?.portfolioPageHeroChipsJson)
   const hero: PortfolioPageHeroContent = {

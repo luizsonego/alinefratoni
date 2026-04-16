@@ -20,10 +20,25 @@ export const SEO_KEYWORDS = [
   'Aline Fratoni',
 ]
 
+/**
+ * URL canónica do site. Valida `NEXT_PUBLIC_SITE_URL`: valor inválido quebraria
+ * `metadataBase: new URL(...)` no layout e derrubava todo o site em produção.
+ */
 export function getSiteUrl(): string {
   const env = process.env.NEXT_PUBLIC_SITE_URL
-  if (typeof env === 'string' && env.trim().length > 0) {
-    return env.replace(/\/$/, '')
+  if (typeof env !== 'string' || !env.trim()) {
+    return DEFAULT_SITE_URL
   }
-  return DEFAULT_SITE_URL
+  const raw = env.trim().replace(/\/$/, '')
+  try {
+    const href = /^https?:\/\//i.test(raw) ? raw : `https://${raw}`
+    const u = new URL(href)
+    if (u.protocol !== 'http:' && u.protocol !== 'https:') {
+      return DEFAULT_SITE_URL
+    }
+    const path = u.pathname === '/' ? '' : u.pathname.replace(/\/$/, '')
+    return `${u.origin}${path}`
+  } catch {
+    return DEFAULT_SITE_URL
+  }
 }
