@@ -1,6 +1,7 @@
 'use client'
 
 import Image, { type ImageProps } from 'next/image'
+import { isNextImageOptimizerIncompatibleUrl } from '@/lib/next-image-bypass'
 
 type Props = Omit<ImageProps, 'src'> & { src: string }
 
@@ -10,6 +11,6 @@ type Props = Omit<ImageProps, 'src'> & { src: string }
  */
 export function PortfolioImage({ src, unoptimized, ...rest }: Props) {
   const useOriginal =
-    unoptimized ?? (typeof src === 'string' && (src.startsWith('/api/') || src.includes('/api/site/asset')))
+    unoptimized ?? (typeof src === 'string' && isNextImageOptimizerIncompatibleUrl(src))
   return <Image src={src} unoptimized={useOriginal} {...rest} />
 }

@@ -18,6 +18,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { DownloadAllZipButton } from '@/components/DownloadAllZipButton'
 import type { AdminGalleryMediaItem } from '@/lib/admin-projects'
 import { downloadUrlInBrowser } from '@/lib/download-in-browser'
+import { adminGalleryImageUnoptimized } from '@/lib/next-image-bypass'
 import { Card } from '@/components/admin/ui/Card'
 import { EmptyState } from '@/components/admin/ui/EmptyState'
 import { Modal } from '@/components/admin/ui/Modal'
@@ -106,7 +107,7 @@ export function ProjectGallery({ project, initialMedia }: ProjectGalleryProps) {
     })
   }
 
-  const thumbUnoptimized = (url: string) => url.startsWith('http')
+  const thumbUnoptimized = adminGalleryImageUnoptimized
 
   async function deleteR2Media(item: DisplayItem) {
     if (item.storage !== 'r2' || !item.r2ObjectKey) return
@@ -149,10 +150,10 @@ export function ProjectGallery({ project, initialMedia }: ProjectGalleryProps) {
             <Link2 className="h-4 w-4" />
             Gerar link para cliente
           </button>
-          <DownloadAllZipButton 
-            eventId={project.id} 
-            eventTitle={project.title} 
-            variant="admin" 
+          <DownloadAllZipButton
+            eventId={project.id}
+            eventTitle={project.title}
+            variant="admin"
             allMedia={initialMedia.map(m => ({
               id: m.id,
               name: m.name,
@@ -161,7 +162,7 @@ export function ProjectGallery({ project, initialMedia }: ProjectGalleryProps) {
               thumbnailUrl: m.thumbUrl,
               viewUrl: m.url,
               previewUrl: m.url
-            }))} 
+            }))}
           />
         </div>
       </div>
@@ -172,11 +173,10 @@ export function ProjectGallery({ project, initialMedia }: ProjectGalleryProps) {
             key={f.id}
             type="button"
             onClick={() => setFilter(f.id)}
-            className={`rounded-lg px-3 py-2 text-sm font-medium transition ${
-              filter === f.id
-                ? 'bg-zinc-800 text-white ring-1 ring-white/10'
-                : 'text-zinc-500 hover:bg-zinc-900 hover:text-zinc-300'
-            }`}
+            className={`rounded-lg px-3 py-2 text-sm font-medium transition ${filter === f.id
+              ? 'bg-zinc-800 text-white ring-1 ring-white/10'
+              : 'text-zinc-500 hover:bg-zinc-900 hover:text-zinc-300'
+              }`}
           >
             {f.label}
           </button>
@@ -303,7 +303,7 @@ function GalleryTile({
         ) : (
           <Image
             src={item.thumbUrl}
-            alt=""
+            alt="imagem"
             fill
             className="object-cover transition duration-300 group-hover:brightness-110"
             sizes="(max-width: 768px) 50vw, 20vw"
@@ -326,9 +326,8 @@ function GalleryTile({
                   e.stopPropagation()
                   onToggleFavorite()
                 }}
-                className={`rounded-lg p-2 backdrop-blur ${
-                  item.favorite ? 'bg-warm-600 text-white' : 'bg-black/50 text-white hover:bg-black/70'
-                }`}
+                className={`rounded-lg p-2 backdrop-blur ${item.favorite ? 'bg-warm-600 text-white' : 'bg-black/50 text-white hover:bg-black/70'
+                  }`}
               >
                 <Heart className={`h-4 w-4 ${item.favorite ? 'fill-current' : ''}`} />
               </button>
@@ -352,9 +351,8 @@ function GalleryTile({
                   e.stopPropagation()
                   onToggleSelect()
                 }}
-                className={`rounded-lg p-2 backdrop-blur ${
-                  selected ? 'bg-emerald-600 text-white' : 'bg-black/50 text-white hover:bg-black/70'
-                }`}
+                className={`rounded-lg p-2 backdrop-blur ${selected ? 'bg-emerald-600 text-white' : 'bg-black/50 text-white hover:bg-black/70'
+                  }`}
               >
                 {selected ? <CheckSquare className="h-4 w-4" /> : <Square className="h-4 w-4" />}
               </button>

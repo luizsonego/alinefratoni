@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import type { AdminClientRow, ClientLoyaltyTier } from '@/lib/admin-clients'
 import { ADMIN_PROJECT_FALLBACK_COVER } from '@/lib/admin-projects'
+import { adminGalleryImageUnoptimized } from '@/lib/next-image-bypass'
 
 // ─── Loyalty badge ────────────────────────────────────────────────────────────
 
@@ -232,7 +233,7 @@ export function ClientProfileCard({ client: c, onDelete, deleting, onSendAccess 
                       alt={p.title}
                       fill
                       className="object-cover transition group-hover/mini:scale-105"
-                      unoptimized={!!(p.coverUrl && p.coverUrl.startsWith('http'))}
+                      unoptimized={!!(p.coverUrl && adminGalleryImageUnoptimized(p.coverUrl))}
                       sizes="96px"
                     />
                     <div className="absolute inset-0 flex items-end bg-gradient-to-t from-black/70 via-transparent p-1">
