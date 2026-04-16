@@ -83,6 +83,7 @@ export default async function PublicSharePage({ params }: Props) {
   )
 
   const hasGallerySource = isDriveConfigured() || isR2Configured()
+  const allMedia = foldersWithImages.flatMap((f) => f.images)
 
   return (
     <>
@@ -95,6 +96,7 @@ export default async function PublicSharePage({ params }: Props) {
             eventId={share.event.id}
             showDriveHint={!hasGallerySource}
             shareSlug={slug}
+            allMedia={allMedia}
           />
 
           <div className="min-w-0 space-y-14 lg:pt-2">
@@ -112,3 +114,4 @@ export default async function PublicSharePage({ params }: Props) {
     </>
   )
 }
+

@@ -1,5 +1,6 @@
 import { DownloadAllZipButton } from '@/components/DownloadAllZipButton'
 import GalleryWatermark from './GalleryWatermark'
+import { type GalleryMedia } from '@/lib/gallery-media'
 
 type Props = {
   title: string
@@ -9,6 +10,7 @@ type Props = {
   showDownloadAll?: boolean
   /** Se definido, o ZIP usa `/api/share/{slug}/download-all` (galeria pública compartilhada). */
   shareSlug?: string
+  allMedia?: GalleryMedia[]
 }
 
 export default function GalleryInfoCard({
@@ -18,6 +20,7 @@ export default function GalleryInfoCard({
   showDriveHint,
   showDownloadAll = true,
   shareSlug,
+  allMedia = [],
 }: Props) {
   return (
     <aside className="relative flex min-h-[min(520px,70vh)] flex-col overflow-hidden rounded-2xl border border-zinc-800/80 bg-zinc-900/50 p-7 shadow-2xl shadow-black/40 backdrop-blur-sm lg:sticky lg:top-6 lg:max-h-[calc(100vh-3rem)] lg:overflow-y-auto">
@@ -41,6 +44,7 @@ export default function GalleryInfoCard({
               eventTitle={title}
               variant="client"
               shareSlug={shareSlug}
+              allMedia={allMedia}
             />
           </div>
         ) : null}

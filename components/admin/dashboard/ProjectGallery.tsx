@@ -149,7 +149,20 @@ export function ProjectGallery({ project, initialMedia }: ProjectGalleryProps) {
             <Link2 className="h-4 w-4" />
             Gerar link para cliente
           </button>
-          <DownloadAllZipButton eventId={project.id} eventTitle={project.title} variant="admin" />
+          <DownloadAllZipButton 
+            eventId={project.id} 
+            eventTitle={project.title} 
+            variant="admin" 
+            allMedia={initialMedia.map(m => ({
+              id: m.id,
+              name: m.name,
+              mediaType: m.kind === 'photo' ? 'image' : 'video',
+              downloadUrl: m.downloadUrl,
+              thumbnailUrl: m.thumbUrl,
+              viewUrl: m.url,
+              previewUrl: m.url
+            }))} 
+          />
         </div>
       </div>
 
