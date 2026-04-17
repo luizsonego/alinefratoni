@@ -1,6 +1,6 @@
 'use client'
 
-import Image from 'next/image'
+import { CdnImage } from '@/components/CdnImage'
 import { motion } from 'framer-motion'
 import type { TestimonialsSectionContent } from '@/lib/site-content'
 
@@ -14,7 +14,7 @@ function CardsStrip({ items }: { items: TestimonialsSectionContent['items'] }) {
         >
           <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-2xl bg-brand-ink/5">
             {t.imageUrl ? (
-              <Image src={t.imageUrl} alt="" fill className="object-cover" sizes="80px" />
+              <CdnImage src={t.imageUrl} alt="" fill className="object-cover" sizes="80px" />
             ) : (
               <div className="flex h-full w-full items-center justify-center font-serif text-2xl text-brand-ink/25">
                 “

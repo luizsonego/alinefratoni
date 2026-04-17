@@ -1,13 +1,12 @@
 'use client'
 
 import { Calendar, Crown, Mail, Pencil, Send, Smartphone, Star, Trash2, Users } from 'lucide-react'
-import Image from 'next/image'
+import { CdnImage } from '@/components/CdnImage'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import type { AdminClientRow, ClientLoyaltyTier } from '@/lib/admin-clients'
 import { ADMIN_PROJECT_FALLBACK_COVER } from '@/lib/admin-projects'
-import { adminGalleryImageUnoptimized } from '@/lib/next-image-bypass'
 
 // ─── Loyalty badge ────────────────────────────────────────────────────────────
 
@@ -228,12 +227,11 @@ export function ClientProfileCard({ client: c, onDelete, deleting, onSendAccess 
                     href={`/admin/projetos/${p.id}`}
                     className="group/mini relative h-16 w-24 shrink-0 overflow-hidden rounded-lg border border-zinc-800"
                   >
-                    <Image
+                    <CdnImage
                       src={p.coverUrl || ADMIN_PROJECT_FALLBACK_COVER}
                       alt={p.title}
                       fill
                       className="object-cover transition group-hover/mini:scale-105"
-                      unoptimized={!!(p.coverUrl && adminGalleryImageUnoptimized(p.coverUrl))}
                       sizes="96px"
                     />
                     <div className="absolute inset-0 flex items-end bg-gradient-to-t from-black/70 via-transparent p-1">

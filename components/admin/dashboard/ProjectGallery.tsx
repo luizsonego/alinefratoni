@@ -11,14 +11,13 @@ import {
   Trash2,
   Video,
 } from 'lucide-react'
-import Image from 'next/image'
+import { CdnImage } from '@/components/CdnImage'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useEffect, useMemo, useState } from 'react'
 import { DownloadAllZipButton } from '@/components/DownloadAllZipButton'
 import type { AdminGalleryMediaItem } from '@/lib/admin-projects'
 import { downloadUrlInBrowser } from '@/lib/download-in-browser'
-import { adminGalleryImageUnoptimized } from '@/lib/next-image-bypass'
 import { Card } from '@/components/admin/ui/Card'
 import { EmptyState } from '@/components/admin/ui/EmptyState'
 import { Modal } from '@/components/admin/ui/Modal'
@@ -107,7 +106,6 @@ export function ProjectGallery({ project, initialMedia }: ProjectGalleryProps) {
     })
   }
 
-  const thumbUnoptimized = adminGalleryImageUnoptimized
 
   async function deleteR2Media(item: DisplayItem) {
     if (item.storage !== 'r2' || !item.r2ObjectKey) return
@@ -215,7 +213,7 @@ export function ProjectGallery({ project, initialMedia }: ProjectGalleryProps) {
               key={item.id}
               item={item}
               selected={selected.has(item.id)}
-              thumbUnoptimized={thumbUnoptimized(item.thumbUrl)}
+              thumbUnoptimized={false}
               deleting={deletingId === item.id}
               onOpen={() => setModalId(item.id)}
               onToggleFavorite={() => toggleFavorite(item.id)}
@@ -244,13 +242,12 @@ export function ProjectGallery({ project, initialMedia }: ProjectGalleryProps) {
                 />
               ) : (
                 <div className="relative aspect-video w-full">
-                  <Image
+                  <CdnImage
                     src={modalItem.url}
                     alt=""
                     fill
                     className="object-contain"
                     sizes="100vw"
-                    unoptimized={thumbUnoptimized(modalItem.url)}
                   />
                 </div>
               )}
@@ -301,13 +298,12 @@ function GalleryTile({
             className="h-full w-full object-cover transition duration-300 group-hover:brightness-110"
           />
         ) : (
-          <Image
+          <CdnImage
             src={item.thumbUrl}
             alt="imagem"
             fill
             className="object-cover transition duration-300 group-hover:brightness-110"
             sizes="(max-width: 768px) 50vw, 20vw"
-            unoptimized={thumbUnoptimized}
           />
         )}
       </button>

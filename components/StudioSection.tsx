@@ -1,6 +1,6 @@
 'use client'
 
-import Image from 'next/image'
+import { CdnImage } from '@/components/CdnImage'
 import { motion } from 'framer-motion'
 import type { AboutPublicContent } from '@/lib/site-content'
 
@@ -22,7 +22,7 @@ export default function StudioSection({ title, paragraphs, imageUrl }: AboutPubl
               borderRadius: '50% 50% 1.25rem 1.25rem / 42% 42% 1.25rem 1.25rem',
             }}
           >
-            <Image
+            <CdnImage
               src={imageUrl}
               alt="Retrato no estúdio"
               fill

@@ -72,13 +72,16 @@ export default async function PublicSharePage({ params }: Props) {
       ? [share.folder]
       : share.event.folders
 
+  // Preferir CDN direto (zero egress na Vercel); fallback para proxy se R2_PUBLIC_BASE_URL não configurado
+  const r2HasCdn = isR2Configured() && Boolean(process.env.R2_PUBLIC_BASE_URL?.trim())
+  const r2Mode = r2HasCdn
+    ? { kind: 'share-cdn' as const }
+    : { kind: 'share-proxy' as const, slug }
+
   const foldersWithImages = await Promise.all(
     folders.map(async (folder: any) => ({
       folder,
-      images: await getGalleryMediaFromFolderRef(folder.driveUrl, {
-        kind: 'share-proxy',
-        slug,
-      }),
+      images: await getGalleryMediaFromFolderRef(folder.driveUrl, r2Mode),
     }))
   )
 

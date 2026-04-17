@@ -12,6 +12,10 @@ function r2RemoteImagePatterns() {
 }
 
 const nextConfig = {
+  // Expor a origem do CDN para o client-side (cloudflareLoader / CdnImage)
+  env: {
+    NEXT_PUBLIC_CDN_ORIGIN: process.env.R2_PUBLIC_BASE_URL ?? '',
+  },
   experimental: {
     serverActions: {
       bodySizeLimit: '25mb',

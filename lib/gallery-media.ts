@@ -16,6 +16,9 @@ export type GalleryR2UrlMode =
   | { kind: 'admin-proxy'; eventId: string }
   | { kind: 'client-proxy'; eventId: string }
   | { kind: 'share-proxy'; slug: string }
+  /** URLs CDN diretas — tráfego não passa pela Vercel. Requer `R2_PUBLIC_BASE_URL`. */
+  | { kind: 'share-cdn' }
+  | { kind: 'client-cdn' }
 
 export async function getGalleryMediaFromFolderRef(
   folderRef: string,
@@ -44,7 +47,9 @@ export async function getGalleryMediaFromFolderRef(
           `/api/share/${encodeURIComponent(slug)}/r2-file?${new URLSearchParams({ key: objectKey }).toString()}`,
       })
     }
+    // share-cdn / client-cdn: sem resolveMediaUrl → usa R2_PUBLIC_BASE_URL (CDN direto)
     return listR2MediaFromPrefix(r2Prefix)
   }
   return getDriveImagesFromFolder(folderRef)
 }
+

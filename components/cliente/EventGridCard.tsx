@@ -1,4 +1,4 @@
-import Image from 'next/image'
+import { CdnImage } from '@/components/CdnImage'
 import Link from 'next/link'
 
 type Props = {
@@ -19,7 +19,7 @@ export default function EventGridCard({ href, title, coverUrl, folderCount }: Pr
     >
       <div className="relative aspect-[16/11] w-full overflow-hidden bg-zinc-900">
         {coverUrl ? (
-          <Image
+          <CdnImage
             src={coverUrl}
             alt={title}
             fill

@@ -2,7 +2,7 @@
 
 import { Check, GripVertical, Info, Loader2, Trash2, Trophy } from 'lucide-react'
 import { motion } from 'framer-motion'
-import Image from 'next/image'
+import { CdnImage } from '@/components/CdnImage'
 
 export type ImageStatus = 'pending' | 'uploading' | 'success' | 'error'
 
@@ -34,7 +34,7 @@ export function ImageCard({
     } bg-zinc-900`}>
       {/* Background Preview */}
       <div className="absolute inset-0 z-0">
-        <Image
+        <CdnImage
           src={previewUrl}
           alt={name}
           fill

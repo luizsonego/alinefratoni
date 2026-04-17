@@ -3,7 +3,7 @@
 import { useId } from 'react'
 import { motion } from 'framer-motion'
 import type { HeroPublicContent } from '@/lib/site-content'
-import Image from 'next/image'
+import { CdnImage } from '@/components/CdnImage'
 // rgb(234, 158, 160)
 
 const container = {
@@ -195,7 +195,7 @@ export default function Hero({ title, subtitle, posterUrl, videoUrl }: HeroPubli
           >
             <div className="absolute inset-0 bg-black/25" aria-hidden />
             <div className="h-full w-full scale-105 object-cover blur-[0.2px] sm:blur-[0.5px]">
-              <Image src={posterUrl} alt={title} className="object-cover h-full w-full" fill />
+              <CdnImage src={posterUrl} alt={title} className="object-cover h-full w-full" fill sizes="(max-width: 1024px) 90vw, 50vw" priority />
             </div>
             {/* <video
               className="h-full w-full scale-105 object-cover blur-[0.2px] sm:blur-[0.5px]"

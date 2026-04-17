@@ -1,7 +1,7 @@
 'use client'
 
 import { CheckCircle2, Heart, ImageIcon } from 'lucide-react'
-import Image from 'next/image'
+import { CdnImage } from '@/components/CdnImage'
 import { useMemo, useState } from 'react'
 import { getMediaForProject, mockProjects } from '@/lib/mock-data/admin-dashboard'
 import { Card } from '@/components/admin/ui/Card'
@@ -68,7 +68,7 @@ export function SelectionPageContent() {
                 isOn ? 'border-warm-500 ring-2 ring-warm-500/30' : 'border-transparent hover:border-zinc-700'
               }`}
             >
-              <Image src={m.thumbUrl} alt="" fill className="object-cover" sizes="(max-width: 768px) 50vw, 15vw" />
+              <CdnImage src={m.thumbUrl} alt="" fill className="object-cover" sizes="(max-width: 768px) 50vw, 15vw" />
               <div
                 className={`absolute inset-0 flex items-end justify-between bg-gradient-to-t from-black/70 to-transparent p-2 transition ${
                   isOn ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'

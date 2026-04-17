@@ -1,8 +1,7 @@
 'use client'
 
 import { Calendar, FolderOpen, Grid3X3, List, Share2, Trash2, Upload, Wifi, WifiOff } from 'lucide-react'
-import Image from 'next/image'
-import { adminGalleryImageUnoptimized } from '@/lib/next-image-bypass'
+import { CdnImage } from '@/components/CdnImage'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useMemo, useState } from 'react'
@@ -114,13 +113,12 @@ function ProjectGridCard({
 
       <Link href={`/admin/projetos/${p.id}`} className="block" onClick={selectionMode ? (e) => { e.preventDefault(); onToggleSelect() } : undefined}>
         <div className="relative aspect-[4/3] overflow-hidden bg-zinc-900">
-          <Image
+          <CdnImage
             src={p.coverUrl}
             alt=""
             fill
             className="object-cover transition duration-500 group-hover:scale-[1.04]"
             sizes="(max-width: 640px) 100vw, 33vw"
-            unoptimized={adminGalleryImageUnoptimized(p.coverUrl)}
           />
 
           {/* Quick view overlay */}
@@ -430,7 +428,7 @@ export function ProjectsList({ projects }: ProjectsListProps) {
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-3">
                           <div className="relative h-9 w-12 shrink-0 overflow-hidden rounded-md border border-zinc-800 bg-zinc-900">
-                            <Image src={p.coverUrl} alt="" fill className="object-cover" sizes="48px" unoptimized={adminGalleryImageUnoptimized(p.coverUrl)} />
+                            <CdnImage src={p.coverUrl} alt="" fill className="object-cover" sizes="48px" />
                           </div>
                           <Link href={`/admin/projetos/${p.id}`} className="font-medium text-zinc-100 hover:text-warm-400">
                             {p.title}

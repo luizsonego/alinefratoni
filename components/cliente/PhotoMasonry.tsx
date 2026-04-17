@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { downloadUrlInBrowser } from '@/lib/download-in-browser'
 import { type GalleryMedia } from '@/lib/gallery-media'
-import Image from 'next/image'
+import { CdnImage } from '@/components/CdnImage'
 
 const ASPECT = ['aspect-[4/5]', 'aspect-[3/4]', 'aspect-square', 'aspect-[5/4]'] as const
 
@@ -18,10 +18,7 @@ const LIGHTBOX_IMAGE_QUALITY = 80
 
 const BLUR_IMAGE = 'https://ik.imagekit.io/500milhas/imagemlogo_mZ0y_rS4w.png'
 
-/** `/_next/image` busca no servidor sem cookies — quebra `/api/share/...` com senha. */
-function isAppProxyMediaUrl(src: string) {
-  return src.startsWith('/api/')
-}
+
 
 type Props = {
   images: GalleryMedia[]
@@ -140,7 +137,7 @@ export default function PhotoMasonry({ images, folderTitle, driveFolderUrl }: Pr
             key={image.id}
             className={`group relative mb-3 break-inside-avoid overflow-hidden rounded-2xl border border-zinc-800/60 bg-zinc-950 shadow-lg shadow-black/20 ${ASPECT[index % ASPECT.length]}`}
           >
-            <Image
+            <CdnImage
               src={image.thumbnailUrl}
               alt={image.name}
               className="h-full w-full object-cover transition duration-500 ease-out group-hover:scale-[1.03]"
@@ -148,7 +145,6 @@ export default function PhotoMasonry({ images, folderTitle, driveFolderUrl }: Pr
               sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
               quality={GRID_IMAGE_QUALITY}
               priority={index < 8}
-              unoptimized={isAppProxyMediaUrl(image.thumbnailUrl)}
               loading={index < 4 ? 'eager' : 'lazy'}
               placeholder='blur'
               blurDataURL={BLUR_IMAGE}
@@ -281,7 +277,7 @@ export default function PhotoMasonry({ images, folderTitle, driveFolderUrl }: Pr
                     className="relative h-[min(85dvh,calc(100dvh-5.5rem))] w-full max-w-[min(1400px,calc(100vw-2rem))] min-h-[12rem] shadow-2xl"
                     onClick={(e) => e.stopPropagation()}
                   >
-                    <Image
+                    <CdnImage
                       src={lightbox.previewUrl}
                       alt={lightbox.name}
                       fill
@@ -290,7 +286,6 @@ export default function PhotoMasonry({ images, folderTitle, driveFolderUrl }: Pr
                       sizes="100vw"
                       quality={LIGHTBOX_IMAGE_QUALITY}
                       priority
-                      unoptimized={isAppProxyMediaUrl(lightbox.previewUrl)}
                     />
                   </div>
                 )}
